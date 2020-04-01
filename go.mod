@@ -1,0 +1,19 @@
+module github.com/postfinance/hlfabric-k8scc
+
+go 1.13
+
+require (
+	github.com/fsouza/go-dockerclient v1.6.3 // indirect
+	github.com/hyperledger/fabric v2.0.1+incompatible
+	github.com/hyperledger/fabric-protos-go v0.0.0-20200124220212-e9cfc186ba7b // indirect
+	github.com/otiai10/copy v1.1.2-0.20200311132357-7ca34007d073
+	github.com/pkg/errors v0.9.1
+	github.com/spf13/viper v1.6.2 // indirect
+	github.com/sykesm/zap-logfmt v0.0.3 // indirect
+	go.uber.org/zap v1.14.1 // indirect
+	golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3
+	gopkg.in/yaml.v2 v2.2.4
+	k8s.io/api v0.17.0
+	k8s.io/apimachinery v0.17.0
+	k8s.io/client-go v0.17.0
+)
