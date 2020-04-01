@@ -67,7 +67,7 @@ The preparation:
 3. Inside this temporary directory, copy the provided chaincode source and create an empty directory for the build output
 
 Next, a builder pod is created and has the following properties:
-- The name is `{{ peer pod name}}-cc-{{ chaincode label }}-{{ short hash }}`
+- The name is `{{ peer pod name}}-ccbuild-{{ short hash }}`
 - It has the temporary subdirectories of the transfer PV mounted
 - The command is the same as the one used by Hyperledger Fabric on its internal builder
 
@@ -79,3 +79,24 @@ Afterwards this procedure is executed:
 4. Copy data from the `META-INF` in the source directory to the output directory on the peer
 5. Write build information to the output directory, in order to use the same image for the launch as for the build
 6. Cleanup pod and remove the temporary directory
+
+### Step `release`
+The step `release` just copies the data from `META-INF` to the output directory provided by the peer
+
+### Step `run`
+The step `run` responsible for launching the chaincode while ensuring compatibility of the chaincode with the internal launcher process.
+
+The preparation:
+1. Parse build information to extract the used image
+2. Create a temporary directory on the transfer volume 
+3. Inside this temporary directory, copy the build output and the artifacts like certificates extracted from `chaincode.json`
+
+Next, a launcher pod is created and has the following properties:
+- The name is `{{ peer pod name}}-cc-{{ chaincode label }}-{{ short hash }}`
+- It has the temporary subdirectories of the transfer PV mounted
+- The command starts the chaincode
+
+The created pod is watched until it exits.
+Afterwards this procedure is executed:
+1. Write stdout and stderr of the launcher pod to the peer log
+2. Remove all garbage (pod + temporary directory)
