@@ -53,4 +53,29 @@ And if you have an own `core.yaml`, you need to configure the launcher. Have a l
 It is not possible to inject this data structure using environment variables.
 
 ## Development
-*TODO*
+This software implements the four parts of an external chaincode launcher and builder: `detect`, `build`, `release`, `run`.
+
+### Step `detect`
+The step `detect` just checks the `metadata.json` if the defined platform (e.g. `golang`) is available in Hyperledger Fabric and if an appropriate image is configured in `k8scc.yaml`
+
+### Step `build`
+The step `build` is responsible for building the chaincode while ensuring compatibility of the chaincode with the internal builder process.
+
+The preparation:
+1. Parse `metadata.json` and check if the plattform (e.g. `golang`) is supported
+2. Create a temporary directory on the transfer volume 
+3. Inside this temporary directory, copy the provided chaincode source and create an empty directory for the build output
+
+Next, a builder pod is created and has the following properties:
+- The name is `{{ peer pod name}}-cc-{{ chaincode label }}-{{ short hash }}`
+- It has the temporary subdirectories of the transfer PV mounted
+- The command is the same as the one used by Hyperledger Fabric on its internal builder
+
+The created pod is watched until it finishes either successfully or not.
+Afterwards this procedure is executed:
+1. Write stdout and stderr of the builder pod to the peer log
+2. Only if the build failed: Remove all garbage (pod + temporary directory) and exit
+3. Copy output data from the temporary directory to the output directory on the peer
+4. Copy data from the `META-INF` in the source directory to the output directory on the peer
+5. Write build information to the output directory, in order to use the same image for the launch as for the build
+6. Cleanup pod and remove the temporary directory
