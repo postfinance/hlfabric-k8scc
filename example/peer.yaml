@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: peer0.org1.example.com
+  name: peer0.org1.example.com
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: peer0.org1.example.com
+  template:
+    metadata:
+      labels:
+        app: peer0.org1.example.com
+    spec:
+      serviceAccountName: peer
+      containers:
+      - image: postfinance/hlfabric-k8scc:latest
+        name: fabric-peer
+        workingDir: /etc/hyperledger/fabric/
+        env:
+        - name: FABRIC_LOGGING_SPEC
+          value: "DEBUG"
+        - name: CORE_PEER_ADDRESS
+          value: "peer0-org1-example-com:7051"
+        - name: CORE_PEER_LISTENADDRESS
+          value: "0.0.0.0:7051"
+        - name: CORE_PEER_CHAINCODELISTENADDRESS
+          value: "0.0.0.0:7052"
+        - name: CORE_PEER_LOCALMSPID
+          value: "Org1MSP"
+        - name: CORE_PEER_TLS_ENABLED
+          value: "true"
+        - name: K8SCC_CFGFILE
+          value: "/opt/k8scc/k8scc.yaml"
+        volumeMounts:
+        - mountPath: /var/lib/k8scc/transfer/
+          name: transfer-pv
+        ports:
+        - containerPort: 7051
+        - containerPort: 7052
+      volumes:
+      - name: transfer-pv
+        persistentVolumeClaim:
+          claimName: k8scc-transfer-pv
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: peer0-org1-example-com
+spec:
+  selector:
+    app: "peer0.org1.example.com"
+  ports:
+  - name: "grpc"
+    port: 7051
+    protocol: TCP
+    targetPort: 7051
+  - name: "chaincode"
+    port: 7052
+    protocol: TCP
+    targetPort: 7052
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: k8scc-transfer-pv
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: nfs
