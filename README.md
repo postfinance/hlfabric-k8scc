@@ -19,6 +19,10 @@ The following points are addressed:
 - There is no need for priviledged Pods
 
 ## Usage
+Requirements:
+- The peer runs as a Pod under a Kubernetes ServiceAccount that can manipulate Pods
+- The peer uses a PersistentVolume provided by a claim, which is used to exchange data between the peer and the builder and launcher Pods
+
 *TODO*
 
 ## Development
