@@ -8,7 +8,7 @@ This project implements an external chaincode launcher and builder for Hyperledg
 It talks directly to the Kubernetes API and doesn't depend on Docker which enables you to deploy
 a Hyperledger Fabric Peer on Kubernetes without exposing the Docker socket and therefore improve security and portability.
 
-The following points are addressed:
+The following points have been addressed:
 - Chaincode build runs separated from the peer
 - Chaincode is launched separated from the peer
 - The build and launch of chaincode is compatible with the default/internal system
@@ -17,11 +17,14 @@ The following points are addressed:
 - Kubernetes security mechanisms can be enforced (NetworkPolicies, Host isolation, etc.)
 - There is no dependency on the Kubernetes CRI implementation (like Docker)
 - There is no need for priviledged Pods
+- stdout and stderr of the chaincode is forwarded to the Peer
+- The peer notices when a chaincode fails
 
 ## Usage
 Requirements:
 - The peer runs as a Pod under a Kubernetes ServiceAccount that can manipulate Pods
-- The peer uses a PersistentVolume provided by a claim, which is used to exchange data between the peer and the builder and launcher Pods
+- The peer uses a PersistentVolume provided by a claim, which is used to exchange data between the peer, builder and launcher Pods
+
 
 *TODO*
 
