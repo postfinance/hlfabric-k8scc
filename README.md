@@ -40,9 +40,6 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/k8scc/transfer/    # here we mount our transfer PV
           name: transfer-pv
-        ports:
-        - containerPort: 7051
-        - containerPort: 7052
       volumes:
       - name: transfer-pv
         persistentVolumeClaim:
