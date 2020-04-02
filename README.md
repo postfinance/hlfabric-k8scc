@@ -53,12 +53,22 @@ And if you have an own `core.yaml`, you need to configure the launcher. Have a l
 It is not possible to inject this data structure using environment variables.
 
 ## Development
+### Tags
+The version tags are defined as follows This allows to create (hotfix) branches for different peer versions.
+- `{{ peer version }}-k8scc{{ k8scc version }}`: recommended tag scheme for production use
+- `v{{ k8scc version }}`: tag scheme used internally for k8scc development
+
+Examples:
+- `2.0.1-k8scc0.0.1`: Peer v2.0.1, k8scc v0.0.1
+- `v0.0.1`: k8scc v0.0.1, peer at undefined version
+
+### Steps
 This software implements the four parts of an external chaincode launcher and builder: `detect`, `build`, `release`, `run`.
 
-### Step `detect`
+#### Step `detect`
 The step `detect` just checks the `metadata.json` if the defined platform (e.g. `golang`) is available in Hyperledger Fabric and if an appropriate image is configured in `k8scc.yaml`
 
-### Step `build`
+#### Step `build`
 The step `build` is responsible for building the chaincode while ensuring compatibility of the chaincode with the internal builder process.
 
 The preparation:
@@ -80,10 +90,10 @@ Afterwards this procedure is executed:
 5. Write build information to the output directory, in order to use the same image for the launch as for the build
 6. Cleanup pod and remove the temporary directory
 
-### Step `release`
+#### Step `release`
 The step `release` just copies the data from `META-INF` to the output directory provided by the peer
 
-### Step `run`
+#### Step `run`
 The step `run` responsible for launching the chaincode while ensuring compatibility of the chaincode with the internal launcher process.
 
 The preparation:
