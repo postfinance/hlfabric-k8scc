@@ -1,0 +1,44 @@
+#!/bin/bash
+# This script will update the peer dependencies and print the tags that
+# should be set at this git revision
+
+# Get peer version from Dockerfile
+PEER_VERSION=$(grep -Po "fabric-peer:\K([0-9.]+)" Dockerfile)
+
+# Get k8scc version from Git history
+K8SCC_VERSION=$(git describe --tags --match "v[0-9]*" --abbrev=0 HEAD)
+
+# Read new k8scc version
+echo "Latest k8scc version: $K8SCC_VERSION"
+echo -n "Please enter the new k8scc version: "
+read K8SCC_VERSION
+
+K8SCC_VERSION_SHORT=$(echo $K8SCC_VERSION | sed 's/v//g')
+
+# Update dependencies
+go get -u github.com/hyperledger/fabric@v${PEER_VERSION}
+
+
+# Check diff of core.yaml
+wget -q -O core.yaml.orig https://raw.githubusercontent.com/hyperledger/fabric/v${PEER_VERSION}/sampleconfig/core.yaml
+cat core.yaml.md5sum | sed "s/\s.*$/ core.yaml.orig/g" | md5sum -c
+
+if [ $? -ne 0 ]; then
+	echo "Please update core.yaml.md5sum with the new and original md5sum."
+	echo "Also ensure that the patch file is updated."
+	exit 1
+fi
+
+# check patch
+patch --dry-run core.yaml.orig core.yaml.patch
+if [ $? -ne 0 ]; then
+	echo "Please recreate the core.yaml.patch for the current core.yaml (diff -u)"
+	exit 1
+fi
+
+# Print information
+NEWTAG="$PEER_VERSION-k8scc$K8SCC_VERSION_SHORT"
+echo -e "\nExpected tags:"
+echo -e "\t$NEWTAG"
+echo -e "\t$K8SCC_VERSION"
+echo "Please commit the changes and set them using 'git tag \$TAG'"
