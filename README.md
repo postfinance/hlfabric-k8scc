@@ -32,18 +32,18 @@ When you have your peer running on Kubernetes, you need to ensure that the [rbac
 spec:
   template:
     spec:
-      serviceAccountName: peer                   # run peer as service account
+      serviceAccountName: peer                             # run peer as service account
       containers:
-      - image: postfinance/hlfabric-k8scc:latest # use an appropriate image and tag
+      - image: postfinance/hlfabric-k8scc:2.0.1-k8scc0.0.2 # use an appropriate image and tag
         - name: K8SCC_CFGFILE
-          value: "/opt/k8scc/k8scc.yaml"         # this points to the default configuration file
+          value: "/opt/k8scc/k8scc.yaml"                   # this points to the default configuration file
         volumeMounts:
-        - mountPath: /var/lib/k8scc/transfer/    # here we mount our transfer PV
+        - mountPath: /var/lib/k8scc/transfer/              # here we mount our transfer PV
           name: transfer-pv
       volumes:
       - name: transfer-pv
         persistentVolumeClaim:
-          claimName: k8scc-transfer-pv           # this is our default claim name for transfer PVs
+          claimName: k8scc-transfer-pv                     # this is our default claim name for transfer PVs
 ```
 
 You can have a look in the [example](./example/) directory for a more complete example.
