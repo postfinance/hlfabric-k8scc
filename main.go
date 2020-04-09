@@ -2,14 +2,16 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/yaml.v2"
 
 	"github.com/pkg/errors"
 	apiv1 "k8s.io/api/core/v1"
@@ -25,7 +27,7 @@ const (
 )
 
 // Procedure implements a Hyperledger Fabric externalbuilders command
-type Procedure func(cfg Config) error
+type Procedure func(ctx context.Context, cfg Config) error
 
 func main() {
 	// Select procedure
@@ -66,7 +68,8 @@ func main() {
 	cfg.Namespace = string(namespace)
 
 	// Run procedure
-	err = proc(cfg)
+	ctx := context.Background()
+	err = proc(ctx, cfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -137,7 +140,7 @@ type ChaincodeRunConfig struct {
 	Image     string
 }
 
-func streamPodLogs(pod *apiv1.Pod) error {
+func streamPodLogs(ctx context.Context, pod *apiv1.Pod) error {
 	// Setup kubernetes client
 	clientset, err := getKubernetesClientset()
 	if err != nil {
@@ -145,7 +148,7 @@ func streamPodLogs(pod *apiv1.Pod) error {
 	}
 
 	req := clientset.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &apiv1.PodLogOptions{Follow: true})
-	logs, err := req.Stream()
+	logs, err := req.Stream(ctx)
 	if err != nil {
 		return errors.Wrap(err, "opening log stream")
 	}
@@ -179,11 +182,12 @@ func cleanupPod(pod *apiv1.Pod) error {
 		return errors.Wrap(err, "getting kubernetes clientset")
 	}
 
-	err = clientset.CoreV1().Pods(pod.Namespace).Delete(pod.Name, &metav1.DeleteOptions{})
+	ctx := context.Background()
+	err = clientset.CoreV1().Pods(pod.Namespace).Delete(ctx, pod.Name, metav1.DeleteOptions{})
 	return err
 }
 
-func watchPodUntilCompletion(pod *apiv1.Pod) (bool, error) {
+func watchPodUntilCompletion(ctx context.Context, pod *apiv1.Pod) (bool, error) {
 	// Setup kubernetes client
 	clientset, err := getKubernetesClientset()
 	if err != nil {
@@ -244,7 +248,7 @@ func watchPodUntilCompletion(pod *apiv1.Pod) (bool, error) {
 
 	// Stream logs
 	// TODO: This should be done as soon as the pod is running or has an result
-	err = streamPodLogs(pod)
+	err = streamPodLogs(ctx, pod)
 	if err != nil {
 		log.Printf("While streaming pod logs: %q", err)
 	}

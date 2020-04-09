@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,7 +14,7 @@ import (
 
 // Release copies the META-INF data from the chaincode source to the release directory
 // on the peer
-func Release(cfg Config) error {
+func Release(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: release")
 
 	if len(os.Args) != 3 {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -9,7 +10,7 @@ import (
 )
 
 // Detect detects if the provided chaincode source is buildable on Kubernetes
-func Detect(cfg Config) error {
+func Detect(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: detect")
 
 	if len(os.Args) != 3 {

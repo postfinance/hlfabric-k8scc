@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -18,7 +19,7 @@ import (
 )
 
 // Build builds a chaincode on Kubernetes
-func Build(cfg Config) error {
+func Build(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: build")
 
 	if len(os.Args) != 4 {
@@ -68,14 +69,14 @@ func Build(cfg Config) error {
 	}
 
 	// Create builder Pod
-	pod, err := createBuilderPod(cfg, metadata, filepath.Base(transferdir))
+	pod, err := createBuilderPod(ctx, cfg, metadata, filepath.Base(transferdir))
 	if err != nil {
 		return errors.Wrap(err, "creating builder pod")
 	}
 	defer cleanupPodSilent(pod)
 
 	// Watch builder Pod for completion or failure
-	podSucceeded, err := watchPodUntilCompletion(pod)
+	podSucceeded, err := watchPodUntilCompletion(ctx, pod)
 	if err != nil {
 		return errors.Wrap(err, "watching builder pod")
 	}
@@ -121,7 +122,7 @@ func Build(cfg Config) error {
 	return nil
 }
 
-func createBuilderPod(cfg Config, metadata *ChaincodeMetadata, transferPVPrefix string) (*apiv1.Pod, error) {
+func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetadata, transferPVPrefix string) (*apiv1.Pod, error) {
 	// Setup kubernetes client
 	clientset, err := getKubernetesClientset()
 	if err != nil {
@@ -153,7 +154,7 @@ func createBuilderPod(cfg Config, metadata *ChaincodeMetadata, transferPVPrefix 
 
 	// Get peer Pod
 	myself, _ := os.Hostname()
-	myselfPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(myself, metav1.GetOptions{})
+	myselfPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, myself, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "getting myself Pod")
 	}
@@ -227,5 +228,5 @@ func createBuilderPod(cfg Config, metadata *ChaincodeMetadata, transferPVPrefix 
 		},
 	}
 
-	return clientset.CoreV1().Pods(cfg.Namespace).Create(pod)
+	return clientset.CoreV1().Pods(cfg.Namespace).Create(ctx, pod, metav1.CreateOptions{})
 }

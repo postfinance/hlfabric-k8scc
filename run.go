@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -18,7 +19,7 @@ import (
 
 // Run implements the chaincode launcher on Kubernetes whose function is implemented after
 // https://github.com/hyperledger/fabric/blob/v2.0.1/integration/externalbuilders/golang/bin/run
-func Run(cfg Config) error {
+func Run(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: run")
 
 	if len(os.Args) != 3 {
@@ -71,14 +72,14 @@ func Run(cfg Config) error {
 	}
 
 	// Create chaincode pod
-	pod, err := createChaincodePod(cfg, runConfig, filepath.Base(transferdir))
+	pod, err := createChaincodePod(ctx, cfg, runConfig, filepath.Base(transferdir))
 	if err != nil {
 		return errors.Wrap(err, "creating chaincode pod")
 	}
 	defer cleanupPodSilent(pod) // Cleanup pod on finish
 
 	// Watch chaincode Pod for completion or failure
-	podSucceeded, err := watchPodUntilCompletion(pod)
+	podSucceeded, err := watchPodUntilCompletion(ctx, pod)
 	if err != nil {
 		return errors.Wrap(err, "watching chaincode pod")
 	}
@@ -180,7 +181,7 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	return &metadata, nil
 }
 
-func createChaincodePod(cfg Config, runConfig *ChaincodeRunConfig, transferPVPrefix string) (*apiv1.Pod, error) {
+func createChaincodePod(ctx context.Context, cfg Config, runConfig *ChaincodeRunConfig, transferPVPrefix string) (*apiv1.Pod, error) {
 	// Setup kubernetes client
 	clientset, err := getKubernetesClientset()
 	if err != nil {
@@ -189,7 +190,7 @@ func createChaincodePod(cfg Config, runConfig *ChaincodeRunConfig, transferPVPre
 
 	// Get peer Pod
 	myself, _ := os.Hostname()
-	myselfPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(myself, metav1.GetOptions{})
+	myselfPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, myself, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "getting myself Pod")
 	}
@@ -296,5 +297,5 @@ func createChaincodePod(cfg Config, runConfig *ChaincodeRunConfig, transferPVPre
 		},
 	}
 
-	return clientset.CoreV1().Pods(cfg.Namespace).Create(pod)
+	return clientset.CoreV1().Pods(cfg.Namespace).Create(ctx, pod, metav1.CreateOptions{})
 }
