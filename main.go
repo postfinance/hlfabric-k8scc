@@ -9,7 +9,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 
 	"gopkg.in/yaml.v2"
 
@@ -67,8 +69,19 @@ func main() {
 	}
 	cfg.Namespace = string(namespace)
 
+	// Handle SIGTERM and SIGINT in order to collect garbage.
+	// We cancel the request/procedure using a context, so we can cancel it.
+	// This will trigger a cleanup in the according functions and we will terminate.
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		sig := <-sigs
+		log.Printf("Received %s, stopping launcher", sig)
+		cancel()
+	}()
+
 	// Run procedure
-	ctx := context.Background()
 	err = proc(ctx, cfg)
 	if err != nil {
 		log.Fatalln(err)
@@ -271,7 +284,11 @@ func getMetadata(metadataDir string) (*ChaincodeMetadata, error) {
 
 	// Create hash in order to track this CC
 	h := sha1.New()
-	h.Write(metadataData)
+	_, err = h.Write(metadataData)
+	if err != nil {
+		return nil, errors.Wrap(err, "hashing metadata")
+	}
+
 	metadata.MetadataID = fmt.Sprintf("%x", h.Sum(nil))[0:8]
 
 	return &metadata, nil
