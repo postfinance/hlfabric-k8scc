@@ -82,7 +82,7 @@ func Build(ctx context.Context, cfg Config) error {
 	}
 
 	if !podSucceeded {
-		return fmt.Errorf("Build of Chaincode %s in Pod %s failed", metadata.Label, pod.Name)
+		return fmt.Errorf("build of Chaincode %s in Pod %s failed", metadata.Label, pod.Name)
 	}
 
 	// Copy data from transfer pv to original output destination
@@ -122,7 +122,8 @@ func Build(ctx context.Context, cfg Config) error {
 	return nil
 }
 
-func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetadata, transferPVPrefix string) (*apiv1.Pod, error) {
+func createBuilderPod(ctx context.Context,
+	cfg Config, metadata *ChaincodeMetadata, transferPVPrefix string) (*apiv1.Pod, error) {
 	// Setup kubernetes client
 	clientset, err := getKubernetesClientset()
 	if err != nil {
@@ -132,18 +133,21 @@ func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetada
 	// Get builder image
 	image, ok := cfg.Images[metadata.Type]
 	if !ok {
-		return nil, fmt.Errorf("No builder image available for %q", metadata.Type)
+		return nil, fmt.Errorf("no builder image available for %q", metadata.Type)
 	}
 
 	// Get platform informations from hyperledger
 	plt := GetPlatform(metadata.Type)
 	if plt == nil {
-		return nil, fmt.Errorf("Platform %q not supported by Hyperledger Fabric", metadata.Type)
+		return nil, fmt.Errorf("platform %q not supported by Hyperledger Fabric", metadata.Type)
 	}
 
 	buildOpts, err := plt.DockerBuildOptions(metadata.Path)
+	if err != nil {
+		return nil, errors.Wrap(err, "getting build options for platform")
+	}
 
-	var envvars []apiv1.EnvVar
+	envvars := []apiv1.EnvVar{}
 	for _, env := range buildOpts.Env {
 		s := strings.SplitN(env, "=", 2)
 		envvars = append(envvars, apiv1.EnvVar{
@@ -174,7 +178,7 @@ func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetada
 		ObjectMeta: metav1.ObjectMeta{
 			Name: podname,
 			OwnerReferences: []metav1.OwnerReference{
-				metav1.OwnerReference{
+				{
 					APIVersion:         "v1",
 					Kind:               "Pod",
 					Name:               myselfPod.Name,
@@ -188,7 +192,7 @@ func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetada
 		},
 		Spec: apiv1.PodSpec{
 			Containers: []apiv1.Container{
-				apiv1.Container{
+				{
 					Name:            "builder",
 					Image:           image,
 					ImagePullPolicy: apiv1.PullIfNotPresent,
@@ -198,13 +202,13 @@ func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetada
 					Env:       envvars,
 					Resources: apiv1.ResourceRequirements{Limits: limits},
 					VolumeMounts: []apiv1.VolumeMount{
-						apiv1.VolumeMount{
+						{
 							Name:      "transfer-pv",
 							MountPath: "/chaincode/input/",
 							SubPath:   transferPVPrefix + "/src/",
 							ReadOnly:  true,
 						},
-						apiv1.VolumeMount{
+						{
 							Name:      "transfer-pv",
 							MountPath: "/chaincode/output/",
 							SubPath:   transferPVPrefix + "/bld/",
@@ -216,7 +220,7 @@ func createBuilderPod(ctx context.Context, cfg Config, metadata *ChaincodeMetada
 			EnableServiceLinks: BoolRef(false),
 			RestartPolicy:      apiv1.RestartPolicyNever,
 			Volumes: []apiv1.Volume{
-				apiv1.Volume{
+				{
 					Name: "transfer-pv",
 					VolumeSource: apiv1.VolumeSource{
 						PersistentVolumeClaim: &apiv1.PersistentVolumeClaimVolumeSource{

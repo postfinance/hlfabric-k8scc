@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -42,7 +42,8 @@ func main() {
 
 	proc := getProcedureFromArg(procedures)
 	if proc == nil {
-		log.Fatalln("Please pass one of the following values as first argument or set it as the name of the executable: detect, build, release, run")
+		log.Fatalln("Please pass one of the following values as first argument" +
+			"or set it as the name of the executable: detect, build, release, run")
 	}
 
 	// Read configuration
@@ -131,7 +132,8 @@ type BuildInformation struct {
 	Image string
 }
 
-// ChaincodeMetadata is based on https://github.com/hyperledger/fabric/blob/v2.0.1/core/chaincode/persistence/chaincode_package.go#L226
+// ChaincodeMetadata is based on
+// https://github.com/hyperledger/fabric/blob/v2.0.1/core/chaincode/persistence/chaincode_package.go#L226
 type ChaincodeMetadata struct {
 	Type       string `json:"type"` // golang, java, node
 	Path       string `json:"path"`
@@ -139,7 +141,8 @@ type ChaincodeMetadata struct {
 	MetadataID string
 }
 
-// ChaincodeRunConfig is based on https://github.com/hyperledger/fabric/blob/v2.0.1/core/container/externalbuilder/externalbuilder.go#L338
+// ChaincodeRunConfig is based on
+// https://github.com/hyperledger/fabric/blob/v2.0.1/core/container/externalbuilder/externalbuilder.go#L338
 type ChaincodeRunConfig struct {
 	CCID        string `json:"chaincode_id"`
 	PeerAddress string `json:"peer_address"`
@@ -283,7 +286,7 @@ func getMetadata(metadataDir string) (*ChaincodeMetadata, error) {
 	}
 
 	// Create hash in order to track this CC
-	h := sha1.New()
+	h := sha1.New() // #nosec G401
 	_, err = h.Write(metadataData)
 	if err != nil {
 		return nil, errors.Wrap(err, "hashing metadata")

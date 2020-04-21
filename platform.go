@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/hyperledger/fabric/core/chaincode/platforms"
 	"strings"
+
+	"github.com/hyperledger/fabric/core/chaincode/platforms"
 )
 
 // GetPlatform returns the chaincode platform as defined by HyperLedger Fabric Peer

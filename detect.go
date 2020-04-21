@@ -27,7 +27,7 @@ func Detect(ctx context.Context, cfg Config) error {
 	// Check if there is a valid image configured
 	_, ok := cfg.Images[metadata.Type]
 	if !ok {
-		return fmt.Errorf("No image available for %q", metadata.Type)
+		return fmt.Errorf("no image available for %q", metadata.Type)
 		// Hyperledger Fabric expects a non zero exit code for not
 		// detected technologies. main() will ensure a non zero exit code on error
 	}
@@ -35,7 +35,7 @@ func Detect(ctx context.Context, cfg Config) error {
 	// Check if platform is supported by hyperledger fabric
 	plt := GetPlatform(metadata.Type)
 	if plt == nil {
-		return fmt.Errorf("Platform %q not supported by Hyperledger Fabric", metadata.Type)
+		return fmt.Errorf("platform %q not supported by Hyperledger Fabric", metadata.Type)
 	}
 
 	// Image detected successfully

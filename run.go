@@ -85,7 +85,7 @@ func Run(ctx context.Context, cfg Config) error {
 	}
 
 	if !podSucceeded {
-		return fmt.Errorf("Chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
+		return fmt.Errorf("chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
 	}
 
 	return nil
@@ -181,7 +181,8 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	return &metadata, nil
 }
 
-func createChaincodePod(ctx context.Context, cfg Config, runConfig *ChaincodeRunConfig, transferPVPrefix string) (*apiv1.Pod, error) {
+func createChaincodePod(ctx context.Context,
+	cfg Config, runConfig *ChaincodeRunConfig, transferPVPrefix string) (*apiv1.Pod, error) {
 	// Setup kubernetes client
 	clientset, err := getKubernetesClientset()
 	if err != nil {
@@ -216,7 +217,7 @@ func createChaincodePod(ctx context.Context, cfg Config, runConfig *ChaincodeRun
 		ObjectMeta: metav1.ObjectMeta{
 			Name: podname,
 			OwnerReferences: []metav1.OwnerReference{
-				metav1.OwnerReference{
+				{
 					APIVersion:         "v1",
 					Kind:               "Pod",
 					Name:               myselfPod.Name,
@@ -230,32 +231,32 @@ func createChaincodePod(ctx context.Context, cfg Config, runConfig *ChaincodeRun
 		},
 		Spec: apiv1.PodSpec{
 			Containers: []apiv1.Container{
-				apiv1.Container{
+				{
 					Name:            "chaincode",
 					Image:           runConfig.Image,
 					ImagePullPolicy: apiv1.PullIfNotPresent,
 					Env: []apiv1.EnvVar{
-						apiv1.EnvVar{
+						{
 							Name:  "CORE_CHAINCODE_ID_NAME",
 							Value: runConfig.CCID,
 						},
-						apiv1.EnvVar{
+						{
 							Name:  "CORE_PEER_LOCALMSPID",
 							Value: runConfig.MSPID,
 						},
-						apiv1.EnvVar{
+						{
 							Name:  "CORE_TLS_CLIENT_CERT_FILE",
 							Value: "/chaincode/artifacts/client.crt",
 						},
-						apiv1.EnvVar{
+						{
 							Name:  "CORE_TLS_CLIENT_KEY_FILE",
 							Value: "/chaincode/artifacts/client.key",
 						},
-						apiv1.EnvVar{
+						{
 							Name:  "CORE_PEER_TLS_ROOTCERT_FILE",
 							Value: "/chaincode/artifacts/root.crt",
 						},
-						apiv1.EnvVar{
+						{
 							Name:  "CORE_PEER_TLS_ENABLED",
 							Value: hasTLS,
 						},
@@ -267,13 +268,13 @@ func createChaincodePod(ctx context.Context, cfg Config, runConfig *ChaincodeRun
 					},
 					Resources: apiv1.ResourceRequirements{Limits: limits},
 					VolumeMounts: []apiv1.VolumeMount{
-						apiv1.VolumeMount{
+						{
 							Name:      "transfer-pv",
 							MountPath: "/chaincode/artifacts/",
 							SubPath:   transferPVPrefix + "/artifacts/",
 							ReadOnly:  true,
 						},
-						apiv1.VolumeMount{
+						{
 							Name:      "transfer-pv",
 							MountPath: "/chaincode/output/",
 							SubPath:   transferPVPrefix + "/output/",
@@ -285,7 +286,7 @@ func createChaincodePod(ctx context.Context, cfg Config, runConfig *ChaincodeRun
 			EnableServiceLinks: BoolRef(false),
 			RestartPolicy:      apiv1.RestartPolicyAlways,
 			Volumes: []apiv1.Volume{
-				apiv1.Volume{
+				{
 					Name: "transfer-pv",
 					VolumeSource: apiv1.VolumeSource{
 						PersistentVolumeClaim: &apiv1.PersistentVolumeClaimVolumeSource{
