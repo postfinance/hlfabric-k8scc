@@ -19,7 +19,7 @@ spec:
     spec:
       serviceAccountName: peer
       containers:
-      - image: postfinance/hlfabric-k8scc:2.0.1-k8scc0.0.2
+      - image: postfinance/hlfabric-k8scc:2.1.0-k8scc0.0.3
         name: fabric-peer
         workingDir: /etc/hyperledger/fabric/
         env:
