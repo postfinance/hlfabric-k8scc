@@ -5,10 +5,11 @@ It demonstrates how you can use the [postfinance/hlfabric-k8scc](https://github.
 to deploy a fabric network in kubernetes without exposing the docker socket.
 
 ## Prerequisites
-Before you can run this demo make sure you have installed the 
+Before you can run this demo make sure you have installed the Fabric  
 [Prerequisites](https://hyperledger-fabric.readthedocs.io/en/latest/prereqs.html) and 
 [Samples, Binaries, and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html).
-Furthermore you need a running [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) and [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+Furthermore you need a running Kubernetes cluster (easiest way is to deploy it with [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)) 
+and [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
 ## Bring up the network
 Similar to the test-network sample you can find the network.sh script to bring up the network in the ```example/demo``` 
