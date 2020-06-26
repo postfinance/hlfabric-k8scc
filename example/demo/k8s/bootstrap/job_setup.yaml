@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup
+spec:
+  template:
+    spec:
+      containers:
+      - name: tools
+        image: hyperledger/fabric-tools:2.1.0
+        workingDir: /etc/hyperledger/fabric/
+        command: ["/bin/sh",  "-c"]
+        args:
+        - find;
+          cryptogen generate --config=cryptogen/crypto-config-org1.yaml --output="organizations";
+          cryptogen generate --config=cryptogen/crypto-config-org2.yaml --output="organizations";
+          cryptogen generate --config=cryptogen/crypto-config-orderer.yaml --output="organizations";
+          configtxgen -configPath ./config/ -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./genesis.block;
+          cp ./config/configtx.yaml configtx.yaml
+        volumeMounts:
+        - mountPath: /etc/hyperledger/fabric/
+          name: fabric-config
+        - mountPath: /etc/hyperledger/fabric/cryptogen/
+          name: cryptogen
+        - mountPath: /etc/hyperledger/fabric/config/
+          name: config
+      volumes:
+      - name: fabric-config
+        persistentVolumeClaim:
+          claimName: fabric-config
+      - name: cryptogen
+        configMap:
+          name: cryptogen
+      - name: config
+        configMap:
+          name: config
+      restartPolicy: Never

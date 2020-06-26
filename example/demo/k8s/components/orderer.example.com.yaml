@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: orderer.example.com
+  name: orderer.example.com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orderer.example.com
+  template:
+    metadata:
+      labels:
+        app: orderer.example.com
+    spec:
+      containers:
+      - image: hyperledger/fabric-orderer:2.1.0
+        name: fabric-orderer
+        workingDir: /etc/hyperledger/fabric/
+        env:
+        - name: FABRIC_LOGGING_SPEC
+          value: DEBUG
+        - name: ORDERER_GENERAL_GENESISFILE
+          value: /etc/hyperledger/fabric/genesis.block
+        - name: ORDERER_GENERAL_LOCALMSPID
+          value: OrdererMSP
+        - name: ORDERER_GENERAL_LISTENADDRESS
+          value: "0.0.0.0"
+        - name: ORDERER_GENERAL_TLS_ENABLED
+          value: "true"
+        volumeMounts:
+        - mountPath: /var/hyperledger/production/
+          name: orderer
+        - mountPath: /etc/hyperledger/fabric/msp/
+          subPath: organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/
+          name: fabric-config
+        - mountPath: /etc/hyperledger/fabric/tls/
+          subPath: organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/
+          name: fabric-config
+        - mountPath: /etc/hyperledger/fabric/genesis.block
+          subPath: genesis.block
+          name: fabric-config
+        ports:
+        - containerPort: 7050
+        resources:
+          limits:
+            cpu: "200m"
+      volumes:
+      - name: fabric-config
+        persistentVolumeClaim:
+          claimName: fabric-config
+      - name: orderer
+        persistentVolumeClaim:
+          claimName: orderer.example.com
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: orderer-example-com
+spec:
+  selector:
+    app: "orderer.example.com"
+  ports:
+  - name: "grpc"
+    port: 7050
+    protocol: TCP
+    targetPort: 7050
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: orderer.example.com
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard

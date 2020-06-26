@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cli.peer0.org2.example.com
+  name: cli.peer0.org2.example.com
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cli.peer0.org2.example.com
+  template:
+    metadata:
+      labels:
+        app: cli.peer0.org2.example.com
+    spec:
+      containers:
+        - name: cli
+          image: hyperledger/fabric-tools:2.1.0
+          workingDir: /etc/hyperledger/fabric/
+          tty: true
+          stdin: true
+          env:
+            - name: TZ
+              value: "Europe/Zurich"
+            - name: FABRIC_LOGGING_SPEC
+              value: "INFO"
+            - name: GOPATH
+              value: "/opt/gopath"
+            - name: CORE_PEER_ID
+              value: "cli-peer0-org2-example-com"
+            - name: CORE_PEER_ADDRESS
+              value: "peer0-org2-example-com:7051"
+            - name: CORE_PEER_LOCALMSPID
+              value: "Org2MSP"
+            - name: CORE_PEER_TLS_ENABLED
+              value: "true"
+            - name: CORE_PEER_TLS_ROOTCERT_FILE
+              value: /etc/hyperledger/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+            - name: CORE_PEER_TLS_CLIENTCERT_FILE
+              value: /etc/hyperledger/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/tls/client.crt
+            - name: CORE_PEER_TLS_CLIENTKEY_FILE
+              value: /etc/hyperledger/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/tls/client.key
+            - name: CORE_PEER_MSPCONFIGPATH
+              value: /etc/hyperledger/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+          volumeMounts:
+            - mountPath: /etc/hyperledger/organizations/
+              subPath: organizations
+              name: fabric-config
+            - mountPath: /channels
+              subPath: cli/channels
+              name: fabric-config
+            - mountPath: /chaincodes
+              subPath: cli/chaincodes
+              name: fabric-config
+            - mountPath: /etc/hyperledger/fabric/configtx.yaml
+              subPath: configtx.yaml
+              name: fabric-config
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: "8Mi"
+            limits:
+              cpu: "1"
+              memory: "256Mi"
+          imagePullPolicy: Always
+      volumes:
+        - name: fabric-config
+          persistentVolumeClaim:
+            claimName: fabric-config
+      restartPolicy: Always
