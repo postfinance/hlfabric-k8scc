@@ -5,7 +5,7 @@ It demonstrates how you can use the [postfinance/hlfabric-k8scc](https://github.
 to deploy a fabric network in kubernetes without exposing the docker socket.
 
 ## Prerequisites
-Before you can run this demo make sure you have installed the Fabric  
+Before you can run this demo make sure you have installed the Fabric 
 [Prerequisites](https://hyperledger-fabric.readthedocs.io/en/latest/prereqs.html) and 
 [Samples, Binaries, and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html).
 Furthermore you need a running Kubernetes cluster (easiest way is to deploy it with [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/)) 
@@ -26,11 +26,7 @@ directory of the ```hlfabric-k8scc``` repository.
 ```
 
 ## Interact with the network
-### host
-```shell script
-# copy chaincode in cli pods
-kubectl cp chaincodes/fabcar.tar.gz $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}"):/chaincodes
-```
+
 ### cli peer org1
 ```shell script
 # connect to cli pod
