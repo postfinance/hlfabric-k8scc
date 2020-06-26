@@ -26,16 +26,13 @@ directory of the ```hlfabric-k8scc``` repository.
 ```
 
 ## Interact with the network
+### host
 ```shell script
-# HOST
-# ============================================
-
 # copy chaincode in cli pods
 kubectl cp chaincodes/fabcar.tar.gz $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}"):/chaincodes
-
-# CLI PEER ORG 1
-# ============================================
-
+```
+### cli peer org1
+```shell script
 # connect to cli pod
 kubectl exec -it $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}") -- bash
 
@@ -53,10 +50,9 @@ peer lifecycle chaincode queryinstalled
 # approve chaincode
 peer lifecycle chaincode approveformyorg -o orderer-example-com:7050 --tls true --cafile /etc/hyperledger/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem --channelID mychannel --name fabcar --version 1 --sequence 1 --init-required --package-id fabcar_1:5a10300271158be80c65b9500268f9fc0abc1fb6247eae93adf2915d273651f4
 peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name fabcar --version 1 --sequence 1 --output json --init-required
-
-# CLI PEER ORG 2
-# ============================================
-
+```
+### cli peer org2
+```shell script
 # connect to cli pod
 kubectl exec -it $(kubectl get pod -l app=cli.peer0.org2.example.com -o jsonpath="{.items[0].metadata.name}") -- bash
 
