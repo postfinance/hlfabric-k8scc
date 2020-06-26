@@ -1,8 +1,8 @@
-# Demo K8S Fabric Network
+# hlfabric-k8scc demo
 This demo is inspired by the [test-network](https://github.com/hyperledger/fabric-samples/tree/master/test-network) of 
 the [fabric-samples](https://github.com/hyperledger/fabric-samples).
-It uses the Docker Image of the [postfinance/hlfabric-k8scc](https://github.com/postfinance/hlfabric-k8scc/) Project 
-for the Peers to be able to deploy it to Kubernetes.
+It demonstrates how you can use the [postfinance/hlfabric-k8scc](https://github.com/postfinance/hlfabric-k8scc/) 
+to deploy a fabric network in kubernetes without exposing the docker socket.
 
 ## Prerequisites
 Before you can run this demo make sure you have installed the 
@@ -20,12 +20,15 @@ directory of the ```hlfabric-k8scc``` repository.
 # Stop and destroy the network
 ./network.sh down
 
-# Recreate network
+# Recreate the network
 ./network.sh restart
 ```
 
 ## Interact with the network
 ```shell script
+# HOST
+# ============================================
+
 # copy chaincode in cli pods
 kubectl cp chaincodes/fabcar.tar.gz $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}"):/chaincodes
 
