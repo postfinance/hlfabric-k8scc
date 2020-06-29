@@ -37,6 +37,10 @@ spec:
           value: "true"
         - name: K8SCC_CFGFILE
           value: "/opt/k8scc/k8scc.yaml"
+        - name: CORE_OPERATIONS_LISTENADDRESS
+          value: 0.0.0.0:9443
+        - name: CORE_METRICS_PROVIDER
+          value: prometheus
         volumeMounts:
         - mountPath: /var/lib/k8scc/transfer/
           name: transfer-pv
@@ -51,9 +55,18 @@ spec:
         ports:
         - containerPort: 7051
         - containerPort: 7052
+        - containerPort: 9443
         resources:
           limits:
             cpu: "200m"
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9443
+          initialDelaySeconds: 2
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 10
       volumes:
       - name: transfer-pv
         persistentVolumeClaim:

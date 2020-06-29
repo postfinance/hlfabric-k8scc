@@ -8,6 +8,7 @@ spec:
       containers:
       - name: tools
         image: hyperledger/fabric-tools:2.1.0
+        imagePullPolicy: IfNotPresent
         workingDir: /etc/hyperledger/fabric/
         command: ["/bin/sh",  "-c"]
         args:
