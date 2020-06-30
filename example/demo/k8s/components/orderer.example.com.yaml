@@ -17,6 +17,7 @@ spec:
     spec:
       containers:
       - image: hyperledger/fabric-orderer:2.1.0
+        imagePullPolicy: IfNotPresent
         name: fabric-orderer
         workingDir: /etc/hyperledger/fabric/
         env:

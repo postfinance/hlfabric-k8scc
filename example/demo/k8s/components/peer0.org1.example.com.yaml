@@ -38,6 +38,8 @@ spec:
         - name: K8SCC_CFGFILE
           value: "/opt/k8scc/k8scc.yaml"
         volumeMounts:
+        - mountPath: /etc/hyperledger/fabric/
+          name: core
         - mountPath: /var/lib/k8scc/transfer/
           name: transfer-pv
         - mountPath: /var/hyperledger/production/
@@ -51,11 +53,23 @@ spec:
         ports:
         - containerPort: 7051
         - containerPort: 7052
+        - containerPort: 9443
         resources:
           limits:
             cpu: "200m"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9443
+          initialDelaySeconds: 2
+          timeoutSeconds: 5
+          periodSeconds: 5
+          failureThreshold: 10
       volumes:
+      - name: core
+        configMap:
+          name: core
       - name: fabric-config
         persistentVolumeClaim:
           claimName: fabric-config
@@ -82,6 +96,10 @@ spec:
     port: 7052
     protocol: TCP
     targetPort: 7052
+  - name: "ops"
+    port: 9443
+    protocol: TCP
+    targetPort: 9443
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
