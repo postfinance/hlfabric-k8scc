@@ -129,7 +129,8 @@ type Config struct {
 
 // BuildInformation is used to serialize build data for consumption by the launcher
 type BuildInformation struct {
-	Image string
+	Image    string
+	Platform string
 }
 
 // ChaincodeMetadata is based on
@@ -154,6 +155,7 @@ type ChaincodeRunConfig struct {
 	// Custom fields
 	ShortName string
 	Image     string
+	Platform  string
 }
 
 func streamPodLogs(ctx context.Context, pod *apiv1.Pod) error {

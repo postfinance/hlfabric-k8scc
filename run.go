@@ -177,6 +177,7 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	}
 
 	metadata.Image = buildInformation.Image
+	metadata.Platform = buildInformation.Platform
 
 	return &metadata, nil
 }
@@ -261,11 +262,7 @@ func createChaincodePod(ctx context.Context,
 							Value: hasTLS,
 						},
 					},
-					Command: []string{
-						"/chaincode/output/chaincode",
-						"-peer.address",
-						runConfig.PeerAddress,
-					},
+					Command:   GetRunArgs(runConfig.Platform, runConfig.PeerAddress),
 					Resources: apiv1.ResourceRequirements{Limits: limits},
 					VolumeMounts: []apiv1.VolumeMount{
 						{
