@@ -68,8 +68,9 @@ function checkPrereqs() {
 
 function networkUp() {
   checkPrereqs
-  kubectl create configmap config --from-file=configs/configtx.yaml --from-file=configs/core.yaml
+  kubectl create configmap config --from-file=configs/configtx.yaml
   kubectl create configmap cryptogen --from-file=configs/crypto-config-orderer.yaml --from-file=configs/crypto-config-org1.yaml --from-file=configs/crypto-config-org2.yaml
+  kubectl apply -f configs/core.yaml
   kubectl apply -f k8s/bootstrap
   kubectl wait --for=condition=complete job/setup
   kubectl apply -f k8s/components
@@ -82,6 +83,7 @@ function networkDown() {
   kubectl delete -f k8s/bootstrap
   kubectl delete configmap config
   kubectl delete configmap cryptogen
+  kubectl delete -f configs/core.yaml
 }
 
 if [[ $# -lt 1 ]]; then
