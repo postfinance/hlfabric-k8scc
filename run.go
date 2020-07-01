@@ -262,8 +262,9 @@ func createChaincodePod(ctx context.Context,
 							Value: hasTLS,
 						},
 					},
-					Command:   GetRunArgs(runConfig.Platform, runConfig.PeerAddress),
-					Resources: apiv1.ResourceRequirements{Limits: limits},
+					WorkingDir: GetCCMountDir(runConfig.Platform), // Set the CWD to the path where the chaincode is
+					Command:    GetRunArgs(runConfig.Platform, runConfig.PeerAddress),
+					Resources:  apiv1.ResourceRequirements{Limits: limits},
 					VolumeMounts: []apiv1.VolumeMount{
 						{
 							Name:      "transfer-pv",
@@ -273,7 +274,7 @@ func createChaincodePod(ctx context.Context,
 						},
 						{
 							Name:      "transfer-pv",
-							MountPath: "/chaincode/output/",
+							MountPath: GetCCMountDir(runConfig.Platform),
 							SubPath:   transferPVPrefix + "/output/",
 							ReadOnly:  true,
 						},
