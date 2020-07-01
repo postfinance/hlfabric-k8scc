@@ -137,6 +137,8 @@ github.com/hyperledger/fabric v2.0.1+incompatible h1:7W+yG0gLKTC7NLcWPT3vfpnasez
 github.com/hyperledger/fabric v2.0.1+incompatible/go.mod h1:tGFAOCT696D3rG0Vofd2dyWYLySHlh0aQjf7Q1HAju0=
 github.com/hyperledger/fabric v2.1.0+incompatible h1:U7Qhq4h8u3LOfd7NIYDqxtouIWdcg4pHpgZ0IyvZem4=
 github.com/hyperledger/fabric v2.1.0+incompatible/go.mod h1:tGFAOCT696D3rG0Vofd2dyWYLySHlh0aQjf7Q1HAju0=
+github.com/hyperledger/fabric v2.1.1+incompatible h1:cYYRv3vVg4kA6DmrixLxwn1nwBEUuYda8DsMwlaMKbY=
+github.com/hyperledger/fabric v2.1.1+incompatible/go.mod h1:tGFAOCT696D3rG0Vofd2dyWYLySHlh0aQjf7Q1HAju0=
 github.com/hyperledger/fabric-amcl v0.0.0-20200424173818-327c9e2cf77a h1:JAKZdGuUIjVmES0X31YUD7UqMR2rz/kxLluJuGvsXPk=
 github.com/hyperledger/fabric-amcl v0.0.0-20200424173818-327c9e2cf77a/go.mod h1:X+DIyUsaTmalOpmpQfIvFZjKHQedrURQ5t4YqquX7lE=
 github.com/hyperledger/fabric-protos-go v0.0.0-20200124220212-e9cfc186ba7b h1:rZ3Vro68vStzLYfcSrQlprjjCf5UmFk7QjKGgHL8IQg=

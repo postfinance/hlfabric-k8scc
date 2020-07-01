@@ -34,7 +34,7 @@ spec:
     spec:
       serviceAccountName: peer                             # run peer as service account
       containers:
-      - image: postfinance/hlfabric-k8scc:2.0.1-k8scc0.0.2 # use an appropriate image and tag
+      - image: postfinance/hlfabric-k8scc:2.1.1-k8scc0.0.4 # use an appropriate image and tag
         - name: K8SCC_CFGFILE
           value: "/opt/k8scc/k8scc.yaml"                   # this points to the default configuration file
         volumeMounts:
@@ -59,8 +59,8 @@ The version tags are defined as follows This allows to create (hotfix) branches 
 - `v{{ k8scc version }}`: tag scheme used internally for k8scc development
 
 Examples:
-- `2.0.1-k8scc0.0.1`: Peer v2.0.1, k8scc v0.0.1
-- `v0.0.1`: k8scc v0.0.1, peer at undefined version
+- `2.1.1-k8scc0.0.4`: Peer v2.1.1, k8scc v0.0.4
+- `v0.0.4`: k8scc v0.0.4, peer at undefined version
 
 ### Releasing
 If you want to release a new version of `k8scc`, do the following:

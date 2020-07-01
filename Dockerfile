@@ -8,7 +8,7 @@ RUN go env
 RUN go build -o /bin/externalcc .
 
 
-FROM hyperledger/fabric-peer:2.1.0
+FROM hyperledger/fabric-peer:2.1.1
 
 # Install external cc
 COPY k8scc.yaml /opt/k8scc/

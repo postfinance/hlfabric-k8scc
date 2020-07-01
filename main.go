@@ -143,7 +143,7 @@ type ChaincodeMetadata struct {
 }
 
 // ChaincodeRunConfig is based on
-// https://github.com/hyperledger/fabric/blob/v2.0.1/core/container/externalbuilder/externalbuilder.go#L338
+// https://github.com/hyperledger/fabric/blob/v2.1.1/core/container/externalbuilder/externalbuilder.go#L335
 type ChaincodeRunConfig struct {
 	CCID        string `json:"chaincode_id"`
 	PeerAddress string `json:"peer_address"`
