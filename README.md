@@ -111,7 +111,7 @@ The preparation:
 Next, a launcher pod is created and has the following properties:
 - The name is `{{ peer pod name}}-cc-{{ chaincode label }}-{{ short hash }}`
 - It has the temporary subdirectories of the transfer PV mounted
-- The command starts the chaincode
+- The platform/language dependant command starts the chaincode
 
 The created pod is watched until it exits.
 Afterwards this procedure is executed:
