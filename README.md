@@ -25,7 +25,7 @@ Requirements:
 - The peer runs as a pod under a Kubernetes ServiceAccount that can manipulate pods
 - The peer uses a `PersistentVolume` provided by a `PersistentVolumeClaim`, which is used to exchange data between the peer, builder and launcher pods
 
-The easiest way to use this project is by using the `postfinance/hlfabric-k8scc` [Docker image](https://hub.docker.com/repository/docker/postfinance/hlfabric-k8scc). It's based on the Hyperledger Fabric Peer image and extended with a default [configuration](./k8scc.yaml).
+The easiest way to use this project is by using the `postfinance/hlfabric-k8scc` [Docker image](https://hub.docker.com/r/postfinance/hlfabric-k8scc). It's based on the Hyperledger Fabric Peer image and extended with a default [configuration](./k8scc.yaml).
 
 When you have your peer running on Kubernetes, you need to ensure that the [rbac](./examples/rbac.yaml) are set and that the peer pod runs as a service account matching the rules. The following configuration must be done for the peer:
 ```yaml
