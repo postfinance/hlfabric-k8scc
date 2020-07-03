@@ -19,7 +19,7 @@ import (
 )
 
 // Run implements the chaincode launcher on Kubernetes whose function is implemented after
-// https://github.com/hyperledger/fabric/blob/v2.0.1/integration/externalbuilders/golang/bin/run
+// https://github.com/hyperledger/fabric/blob/v2.1.1/integration/externalbuilders/golang/bin/run
 func Run(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: run")
 
