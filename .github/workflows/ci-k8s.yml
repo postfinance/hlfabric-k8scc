@@ -25,8 +25,6 @@ jobs:
       run: kubectl create -f ci/pv.yaml
     - name: Import k8scc image into kind
       run: kind load docker-image k8scc:latest
-    - name: Create PVs
-      run: kubectl create -f ci/pv.yaml
     - name: Install Hyperledger Fabric binaries
       run: |
         wget -q https://github.com/hyperledger/fabric/releases/download/v2.1.1/hyperledger-fabric-linux-amd64-2.1.1.tar.gz
