@@ -25,9 +25,11 @@ jobs:
       run: kind load docker-image k8scc:latest
     - name: Install Hyperledger Fabric binaries
       run: |
-        wget https://github.com/hyperledger/fabric/releases/download/v2.1.1/hyperledger-fabric-linux-amd64-2.1.1.tar.gz
-        tar -xvf hyperledger-fabric-linux-amd64-2.1.1.tar.gz -C /usr/local/bin/ --strip-components 1 bin/
+        wget -q https://github.com/hyperledger/fabric/releases/download/v2.1.1/hyperledger-fabric-linux-amd64-2.1.1.tar.gz
+        tar -xvf hyperledger-fabric-linux-amd64-2.1.1.tar.gz bin/
     - name: Deploy network
       working-directory: ./example/demo/
       timeout-minutes: 3
-      run: ./network.sh up
+      run: |
+        export PATH="$GITHUB_WORKSPACE/bin:$PATH"
+        ./network.sh up
