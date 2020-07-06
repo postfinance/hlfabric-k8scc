@@ -1,0 +1,33 @@
+name: Test k8scc on Kubernetes
+
+on:
+  push:
+    branches: [ workflows ]
+  pull_request:
+    branches: [ workflows ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --tag k8scc:latest
+    - name: Setup kind
+      uses: engineerd/setup-kind@v0.4.0
+    - name: Show Clusterinfo
+      run: |
+        kubectl cluster-info
+        kubectl get pods -n kube-system
+        echo "current-context:" $(kubectl config current-context)
+        echo "environment-kubeconfig:" ${KUBECONFIG}
+    - name: Import k8scc image into kind
+      run: kind load docker-image k8scc:latest
+    - name: Install Hyperledger Fabric binaries
+      run: |
+        wget https://github.com/hyperledger/fabric/releases/download/v2.1.1/hyperledger-fabric-linux-amd64-2.1.1.tar.gz
+        tar -xvf hyperledger-fabric-linux-amd64-2.1.1.tar.gz -C /usr/local/bin/ --strip-components 1 bin/
+    - name: Deploy network
+      working-directory: ./example/demo/
+      timeout-minutes: 3
+      run: ./network.sh up
