@@ -54,6 +54,7 @@ spec:
         - containerPort: 7051
         - containerPort: 7052
         - containerPort: 9443
+        imagePullPolicy: IfNotPresent
         readinessProbe:
           tcpSocket:
             port: 7051
