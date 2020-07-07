@@ -48,6 +48,9 @@ spec:
         resources:
           limits:
             cpu: "200m"
+        readinessProbe:
+          tcpSocket:
+            port: 7050
       volumes:
       - name: fabric-config
         persistentVolumeClaim:

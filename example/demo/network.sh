@@ -76,6 +76,7 @@ function networkUp() {
   kubectl apply -f k8s/components
   kubectl wait --for=condition=ready pod/$(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}")
   kubectl cp chaincodes/fabcar.tar.gz $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}"):/chaincodes
+  kubectl wait --for=condition=ready pod/$(kubectl get pod -l app=orderer.example.com -o jsonpath="{.items[0].metadata.name}")
 }
 
 function networkDown() {
