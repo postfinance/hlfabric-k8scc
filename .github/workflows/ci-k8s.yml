@@ -7,7 +7,7 @@ on:
     branches: [ workflows ]
 
 jobs:
-  test:
+  main:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -35,6 +35,13 @@ jobs:
       run: |
         export PATH="$GITHUB_WORKSPACE/bin:$PATH"
         ./network.sh up
+        # TODO: Use image from this build
+    - name: Install and run chaincode
+      timeout-minutes: 5
+      run: |
+        kubectl exec -it $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}") -- bash -c "$(cat ci/cli1.sh)"
+        kubectl exec -it $(kubectl get pod -l app=cli.peer0.org2.example.com -o jsonpath="{.items[0].metadata.name}") -- bash -c "$(cat ci/cli2.sh)"
+        # TODO: Validate chaincode output
     - name: Show Kubernetes resources
       run: |
         kubectl get pods -o wide
