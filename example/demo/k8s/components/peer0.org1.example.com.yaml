@@ -59,9 +59,8 @@ spec:
             cpu: "200m"
         imagePullPolicy: IfNotPresent
         readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 9443
+          tcpSocket:
+            port: 7051
           initialDelaySeconds: 2
           timeoutSeconds: 5
           periodSeconds: 5
