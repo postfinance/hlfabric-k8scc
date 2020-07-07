@@ -47,7 +47,7 @@ spec:
         - containerPort: 7050
         resources:
           limits:
-            cpu: "200m"
+            cpu: "100m"
         readinessProbe:
           tcpSocket:
             port: 7050
