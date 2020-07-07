@@ -18,6 +18,7 @@ peer lifecycle chaincode  querycommitted -C mychannel
 
 # init and invoke chaincode
 peer chaincode invoke -o orderer-example-com:7050 --tls true --cafile /etc/hyperledger/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem -C mychannel -n fabcar --peerAddresses peer0-org2-example-com:7051 --tlsRootCertFiles /etc/hyperledger/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt --peerAddresses peer0-org1-example-com:7051 --tlsRootCertFiles /etc/hyperledger/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --isInit -c '{"function":"initLedger","Args":[]}'
+sleep 15 # isInit works asynchronously, maybe there is a better method to wait
 
 # query chaincode
 peer chaincode query -C mychannel -n fabcar -c '{"Args":["queryAllCars"]}'
