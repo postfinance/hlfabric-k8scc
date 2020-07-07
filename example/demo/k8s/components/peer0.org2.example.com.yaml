@@ -54,9 +54,6 @@ spec:
         - containerPort: 7051
         - containerPort: 7052
         - containerPort: 9443
-        resources:
-          limits:
-            cpu: "100m"
         readinessProbe:
           tcpSocket:
             port: 7051
