@@ -1,4 +1,3 @@
-#!/bin/sh
 # This needs to be executed in peer1
 
 # create and join channel

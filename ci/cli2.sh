@@ -1,4 +1,3 @@
-#!/bin/sh
 # This needs to be executed after cli1.sh on peer2
 
 # join channel
