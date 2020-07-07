@@ -34,8 +34,7 @@ jobs:
       timeout-minutes: 3
       run: |
         export PATH="$GITHUB_WORKSPACE/bin:$PATH"
-        ./network.sh up
-        # TODO: Use image from this build
+        ./network.sh up -o kind
     - name: Install and run chaincode
       timeout-minutes: 5
       run: |
