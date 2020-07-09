@@ -1,10 +1,6 @@
 name: Test k8scc on Kubernetes
 
-on:
-  push:
-    branches: [ workflows ]
-  pull_request:
-    branches: [ workflows ]
+on: [push, pull_request]
 
 jobs:
   main:
