@@ -129,7 +129,8 @@ type Config struct {
 
 // BuildInformation is used to serialize build data for consumption by the launcher
 type BuildInformation struct {
-	Image string
+	Image    string
+	Platform string
 }
 
 // ChaincodeMetadata is based on
@@ -142,7 +143,7 @@ type ChaincodeMetadata struct {
 }
 
 // ChaincodeRunConfig is based on
-// https://github.com/hyperledger/fabric/blob/v2.0.1/core/container/externalbuilder/externalbuilder.go#L338
+// https://github.com/hyperledger/fabric/blob/v2.1.1/core/container/externalbuilder/externalbuilder.go#L335
 type ChaincodeRunConfig struct {
 	CCID        string `json:"chaincode_id"`
 	PeerAddress string `json:"peer_address"`
@@ -154,6 +155,7 @@ type ChaincodeRunConfig struct {
 	// Custom fields
 	ShortName string
 	Image     string
+	Platform  string
 }
 
 func streamPodLogs(ctx context.Context, pod *apiv1.Pod) error {

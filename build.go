@@ -101,7 +101,8 @@ func Build(ctx context.Context, cfg Config) error {
 
 	// Create build information
 	buildInformation := BuildInformation{
-		Image: pod.Spec.Containers[0].Image,
+		Image:    pod.Spec.Containers[0].Image,
+		Platform: metadata.Type,
 	}
 
 	bi, err := json.Marshal(buildInformation)

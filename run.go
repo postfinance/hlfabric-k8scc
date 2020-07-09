@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -18,7 +19,7 @@ import (
 )
 
 // Run implements the chaincode launcher on Kubernetes whose function is implemented after
-// https://github.com/hyperledger/fabric/blob/v2.0.1/integration/externalbuilders/golang/bin/run
+// https://github.com/hyperledger/fabric/blob/v2.1.1/integration/externalbuilders/golang/bin/run
 func Run(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: run")
 
@@ -92,19 +93,21 @@ func Run(ctx context.Context, cfg Config) error {
 }
 
 func createArtifacts(c *ChaincodeRunConfig, dir string) error {
-	clientCertFile := filepath.Join(dir, "client.crt")
-	clientKeyFile := filepath.Join(dir, "client.key")
+	clientCertPath := filepath.Join(dir, "client.crt")
+	clientKeyPath := filepath.Join(dir, "client.key")
+	clientCertFile := filepath.Join(dir, "client_pem.crt")
+	clientKeyFile := filepath.Join(dir, "client_pem.key")
 	peerCertFile := filepath.Join(dir, "root.crt")
 
-	// Create files
+	// Create cert files
 	err := ioutil.WriteFile(clientCertFile, []byte(c.ClientCert), os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "writing client cert file")
+		return errors.Wrap(err, "writing client cert pem file")
 	}
 
 	err = ioutil.WriteFile(clientKeyFile, []byte(c.ClientKey), os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "writing client key file")
+		return errors.Wrap(err, "writing client key pem file")
 	}
 
 	err = ioutil.WriteFile(peerCertFile, []byte(c.RootCert), os.ModePerm)
@@ -112,13 +115,35 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 		return errors.Wrap(err, "writing peer cert file")
 	}
 
+	// Create weird cert files (used by node platform)
+	// https://github.com/hyperledger/fabric/blob/v2.1.1/core/container/dockercontroller/dockercontroller.go#L319
+	err = ioutil.WriteFile(clientCertPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientCert))), os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "writing client cert file")
+	}
+
+	err = ioutil.WriteFile(clientKeyPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientKey))), os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "writing client key file")
+	}
+
 	// Change permissions
 	err = os.Chmod(clientCertFile, os.ModePerm)
 	if err != nil {
-		return errors.Wrap(err, "changing client cert file permissions")
+		return errors.Wrap(err, "changing client cert pem file permissions")
 	}
 
 	err = os.Chmod(clientKeyFile, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "changing client key pem file permissions")
+	}
+
+	err = os.Chmod(clientCertPath, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "changing client key file permissions")
+	}
+
+	err = os.Chmod(clientKeyPath, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client key file permissions")
 	}
@@ -177,6 +202,7 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	}
 
 	metadata.Image = buildInformation.Image
+	metadata.Platform = buildInformation.Platform
 
 	return &metadata, nil
 }
@@ -245,12 +271,20 @@ func createChaincodePod(ctx context.Context,
 							Value: runConfig.MSPID,
 						},
 						{
-							Name:  "CORE_TLS_CLIENT_CERT_FILE",
+							Name:  "CORE_TLS_CLIENT_CERT_PATH",
 							Value: "/chaincode/artifacts/client.crt",
 						},
 						{
-							Name:  "CORE_TLS_CLIENT_KEY_FILE",
+							Name:  "CORE_TLS_CLIENT_KEY_PATH",
 							Value: "/chaincode/artifacts/client.key",
+						},
+						{
+							Name:  "CORE_TLS_CLIENT_CERT_FILE",
+							Value: "/chaincode/artifacts/client_pem.crt",
+						},
+						{
+							Name:  "CORE_TLS_CLIENT_KEY_FILE",
+							Value: "/chaincode/artifacts/client_pem.key",
 						},
 						{
 							Name:  "CORE_PEER_TLS_ROOTCERT_FILE",
@@ -261,12 +295,9 @@ func createChaincodePod(ctx context.Context,
 							Value: hasTLS,
 						},
 					},
-					Command: []string{
-						"/chaincode/output/chaincode",
-						"-peer.address",
-						runConfig.PeerAddress,
-					},
-					Resources: apiv1.ResourceRequirements{Limits: limits},
+					WorkingDir: GetCCMountDir(runConfig.Platform), // Set the CWD to the path where the chaincode is
+					Command:    GetRunArgs(runConfig.Platform, runConfig.PeerAddress),
+					Resources:  apiv1.ResourceRequirements{Limits: limits},
 					VolumeMounts: []apiv1.VolumeMount{
 						{
 							Name:      "transfer-pv",
@@ -276,7 +307,7 @@ func createChaincodePod(ctx context.Context,
 						},
 						{
 							Name:      "transfer-pv",
-							MountPath: "/chaincode/output/",
+							MountPath: GetCCMountDir(runConfig.Platform),
 							SubPath:   transferPVPrefix + "/output/",
 							ReadOnly:  true,
 						},

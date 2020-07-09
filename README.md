@@ -25,7 +25,7 @@ Requirements:
 - The peer runs as a pod under a Kubernetes ServiceAccount that can manipulate pods
 - The peer uses a `PersistentVolume` provided by a `PersistentVolumeClaim`, which is used to exchange data between the peer, builder and launcher pods
 
-The easiest way to use this project is by using the `postfinance/hlfabric-k8scc` [Docker image](https://hub.docker.com/repository/docker/postfinance/hlfabric-k8scc). It's based on the Hyperledger Fabric Peer image and extended with a default [configuration](./k8scc.yaml).
+The easiest way to use this project is by using the `postfinance/hlfabric-k8scc` [Docker image](https://hub.docker.com/r/postfinance/hlfabric-k8scc). It's based on the Hyperledger Fabric Peer image and extended with a default [configuration](./k8scc.yaml).
 
 When you have your peer running on Kubernetes, you need to ensure that the [rbac](./examples/rbac.yaml) are set and that the peer pod runs as a service account matching the rules. The following configuration must be done for the peer:
 ```yaml
@@ -34,7 +34,7 @@ spec:
     spec:
       serviceAccountName: peer                             # run peer as service account
       containers:
-      - image: postfinance/hlfabric-k8scc:2.0.1-k8scc0.0.2 # use an appropriate image and tag
+      - image: postfinance/hlfabric-k8scc:2.1.1-k8scc0.0.4 # use an appropriate image and tag
         - name: K8SCC_CFGFILE
           value: "/opt/k8scc/k8scc.yaml"                   # this points to the default configuration file
         volumeMounts:
@@ -59,8 +59,8 @@ The version tags are defined as follows This allows to create (hotfix) branches 
 - `v{{ k8scc version }}`: tag scheme used internally for k8scc development
 
 Examples:
-- `2.0.1-k8scc0.0.1`: Peer v2.0.1, k8scc v0.0.1
-- `v0.0.1`: k8scc v0.0.1, peer at undefined version
+- `2.1.1-k8scc0.0.4`: Peer v2.1.1, k8scc v0.0.4
+- `v0.0.4`: k8scc v0.0.4, peer at undefined version
 
 ### Releasing
 If you want to release a new version of `k8scc`, do the following:
@@ -111,7 +111,7 @@ The preparation:
 Next, a launcher pod is created and has the following properties:
 - The name is `{{ peer pod name}}-cc-{{ chaincode label }}-{{ short hash }}`
 - It has the temporary subdirectories of the transfer PV mounted
-- The command starts the chaincode
+- The platform/language dependant command starts the chaincode
 
 The created pod is watched until it exits.
 Afterwards this procedure is executed:
