@@ -21,4 +21,4 @@ peer chaincode invoke -o orderer-example-com:7050 --tls true --cafile /etc/hyper
 sleep 15 # isInit works asynchronously, maybe there is a better method to wait
 
 # query chaincode
-peer chaincode query -C mychannel -n fabcar -c '{"Args":["queryAllCars"]}'
+peer chaincode query -C mychannel -n fabcar -c '{"Args":["queryAllCars"]}' | grep '{"make":"Fiat","model":"Punto","colour":"violet","owner":"Pari"}'

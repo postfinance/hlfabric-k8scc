@@ -41,7 +41,6 @@ jobs:
         sleep 40 # wait until the peers become available. TODO: better implementation
         kubectl exec -i $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}") -- bash -x -e -c "$(cat ci/cli1.sh)"
         kubectl exec -i $(kubectl get pod -l app=cli.peer0.org2.example.com -o jsonpath="{.items[0].metadata.name}") -- bash -x -e -c "$(cat ci/cli2.sh)"
-        # TODO: Validate chaincode output
     - name: Show Kubernetes resources
       run: |
         kubectl get pods -o wide
