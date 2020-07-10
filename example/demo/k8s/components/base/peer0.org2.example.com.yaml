@@ -3,19 +3,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: peer0.org1.example.com
-  name: peer0.org1.example.com
+    app: peer0.org2.example.com
+  name: peer0.org2.example.com
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: peer0.org1.example.com
+      app: peer0.org2.example.com
   template:
     metadata:
       labels:
-        app: peer0.org1.example.com
+        app: peer0.org2.example.com
     spec:
       serviceAccountName: peer
       containers:
@@ -26,13 +26,13 @@ spec:
         - name: FABRIC_LOGGING_SPEC
           value: "DEBUG:msp.identity=INFO"
         - name: CORE_PEER_ADDRESS
-          value: "peer0-org1-example-com:7051"
+          value: "peer0-org2-example-com:7051"
         - name: CORE_PEER_LISTENADDRESS
           value: "0.0.0.0:7051"
         - name: CORE_PEER_CHAINCODELISTENADDRESS
           value: "0.0.0.0:7052"
         - name: CORE_PEER_LOCALMSPID
-          value: "Org1MSP"
+          value: "Org2MSP"
         - name: CORE_PEER_TLS_ENABLED
           value: "true"
         - name: K8SCC_CFGFILE
@@ -45,23 +45,19 @@ spec:
         - mountPath: /var/hyperledger/production/
           name: peer
         - mountPath: /etc/hyperledger/fabric/msp/
-          subPath: organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/
+          subPath: organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/
           name: fabric-config
         - mountPath: /etc/hyperledger/fabric/tls/
-          subPath: organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/
+          subPath: organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/
           name: fabric-config
         ports:
         - containerPort: 7051
         - containerPort: 7052
         - containerPort: 9443
-        resources:
-          limits:
-            cpu: "200m"
         imagePullPolicy: IfNotPresent
         readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 9443
+          tcpSocket:
+            port: 7051
           initialDelaySeconds: 2
           timeoutSeconds: 5
           periodSeconds: 5
@@ -70,23 +66,23 @@ spec:
       - name: core
         configMap:
           name: core
-      - name: fabric-config
-        persistentVolumeClaim:
-          claimName: fabric-config
       - name: transfer-pv
         persistentVolumeClaim:
           claimName: k8scc-transfer-pv
+      - name: fabric-config
+        persistentVolumeClaim:
+          claimName: fabric-config
       - name: peer
         persistentVolumeClaim:
-          claimName: peer0.org1.example.com
+          claimName: peer0.org2.example.com
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: peer0-org1-example-com
+  name: peer0-org2-example-com
 spec:
   selector:
-    app: "peer0.org1.example.com"
+    app: "peer0.org2.example.com"
   ports:
   - name: "grpc"
     port: 7051
@@ -104,7 +100,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: peer0.org1.example.com
+  name: peer0.org2.example.com
 spec:
   accessModes:
     - ReadWriteMany

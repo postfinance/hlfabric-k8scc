@@ -1,0 +1,48 @@
+name: Test k8scc on Kubernetes
+
+on: [push, pull_request]
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --tag k8scc:latest
+    - name: Setup kind
+      uses: engineerd/setup-kind@v0.4.0
+    - name: Show Clusterinfo
+      run: |
+        kubectl cluster-info
+        kubectl get pods -n kube-system
+        echo "current-context:" $(kubectl config current-context)
+        echo "environment-kubeconfig:" ${KUBECONFIG}
+    - name: Create PersistentVolumes
+      run: kubectl create -f ci/pv.yaml
+    - name: Import k8scc image into kind
+      run: kind load docker-image k8scc:latest
+    - name: Install Hyperledger Fabric binaries
+      run: |
+        wget -q https://github.com/hyperledger/fabric/releases/download/v2.1.1/hyperledger-fabric-linux-amd64-2.1.1.tar.gz
+        tar -xvf hyperledger-fabric-linux-amd64-2.1.1.tar.gz bin/
+    - name: Deploy network
+      working-directory: ./example/demo/
+      timeout-minutes: 3
+      run: |
+        export PATH="$GITHUB_WORKSPACE/bin:$PATH"
+        ./network.sh up -o kind
+    - name: Install and run chaincode
+      timeout-minutes: 5
+      run: |
+        sleep 40 # wait until the peers become available. TODO: better implementation
+        kubectl exec -i $(kubectl get pod -l app=cli.peer0.org1.example.com -o jsonpath="{.items[0].metadata.name}") -- bash -x -e -c "$(cat ci/cli1.sh)"
+        kubectl exec -i $(kubectl get pod -l app=cli.peer0.org2.example.com -o jsonpath="{.items[0].metadata.name}") -- bash -x -e -c "$(cat ci/cli2.sh)"
+    - name: Show Kubernetes resources
+      run: |
+        kubectl get pods -o wide
+        kubectl get configmaps -o wide
+        kubectl get pvc -o wide
+      if: ${{ always() }}
+    - name: Describe Pods on failure
+      run: kubectl describe pods
+      if: ${{ failure() }}

@@ -1,0 +1,5 @@
+bases:
+  - ../../base
+patchesStrategicMerge:
+  - peer0.org1.example.com_patch.yaml
+  - peer0.org2.example.com_patch.yaml

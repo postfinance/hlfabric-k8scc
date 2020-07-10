@@ -8,9 +8,9 @@ transfer_volume:
   claim: "k8scc-transfer-pv"
 builder:
   resources:
-    memory_limit: "1G"
-    cpu_limit: "0.5"
+    memory_limit: "0.5G"
+    cpu_limit: "0.2"
 launcher:
   resources:
-    memory_limit: "1G"
-    cpu_limit: "0.5"
+    memory_limit: "0.5G"
+    cpu_limit: "0.2"

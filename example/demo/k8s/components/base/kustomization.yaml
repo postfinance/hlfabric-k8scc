@@ -1,0 +1,6 @@
+resources:
+  - cli.peer0.org1.example.com.yaml
+  - cli.peer0.org2.example.com.yaml
+  - orderer.example.com.yaml
+  - peer0.org1.example.com.yaml
+  - peer0.org2.example.com.yaml
