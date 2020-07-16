@@ -1,7 +1,7 @@
 # hlfabric-k8scc
-Chaincode launcher and builder for Hyperledger Fabric on Kubernetes 
+![Test k8scc on Kubernetes](https://github.com/postfinance/hlfabric-k8scc/workflows/Test%20k8scc%20on%20Kubernetes/badge.svg)
 
-Status: *In development*
+Chaincode launcher and builder for Hyperledger Fabric on Kubernetes
 
 ## Features
 This project implements an external chaincode launcher and builder for Hyperledger Fabric.
