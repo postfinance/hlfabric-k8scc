@@ -8,10 +8,11 @@ RUN go env
 RUN go build -o /bin/externalcc .
 
 
-FROM hyperledger/fabric-peer:2.1.1
+FROM hyperledger/fabric-peer:2.2.1
+RUN apk --no-cache add patch
 
 # Install external cc
-COPY k8scc.yaml /opt/k8scc/
+COPY k8scc.yaml /opt/k8scc/k8scc.yaml
 COPY --from=builder /bin/externalcc /opt/k8scc/bin/externalcc
 RUN ln -s /opt/k8scc/bin/externalcc /opt/k8scc/bin/detect
 RUN ln -s /opt/k8scc/bin/externalcc /opt/k8scc/bin/build

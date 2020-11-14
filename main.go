@@ -49,7 +49,7 @@ func main() {
 	// Read configuration
 	cfgFile := os.Getenv("K8SCC_CFGFILE")
 	if cfgFile == "" {
-		cfgFile = "k8scc.yaml"
+		cfgFile = "/opt/k8scc/k8scc.yaml"
 	}
 
 	cfgData, err := ioutil.ReadFile(cfgFile)
@@ -134,7 +134,7 @@ type BuildInformation struct {
 }
 
 // ChaincodeMetadata is based on
-// https://github.com/hyperledger/fabric/blob/v2.0.1/core/chaincode/persistence/chaincode_package.go#L226
+// https://github.com/hyperledger/fabric/blob/v2.2.1/core/chaincode/persistence/chaincode_package.go#L229
 type ChaincodeMetadata struct {
 	Type       string `json:"type"` // golang, java, node
 	Path       string `json:"path"`
@@ -143,7 +143,7 @@ type ChaincodeMetadata struct {
 }
 
 // ChaincodeRunConfig is based on
-// https://github.com/hyperledger/fabric/blob/v2.1.1/core/container/externalbuilder/externalbuilder.go#L335
+// https://github.com/hyperledger/fabric/blob/v2.2.1/core/container/externalbuilder/externalbuilder.go#L335
 type ChaincodeRunConfig struct {
 	CCID        string `json:"chaincode_id"`
 	PeerAddress string `json:"peer_address"`
