@@ -16,7 +16,7 @@ spec:
         app: orderer.example.com
     spec:
       containers:
-      - image: hyperledger/fabric-orderer:2.1.1
+      - image: hyperledger/fabric-orderer:2.2.1
         imagePullPolicy: IfNotPresent
         name: fabric-orderer
         workingDir: /etc/hyperledger/fabric/

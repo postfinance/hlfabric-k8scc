@@ -19,7 +19,7 @@ spec:
     spec:
       serviceAccountName: peer
       containers:
-      - image: postfinance/hlfabric-k8scc:2.1.1-k8scc0.0.4
+      - image: postfinance/hlfabric-k8scc:2.2.1-k8scc0.0.5
         name: fabric-peer
         workingDir: /etc/hyperledger/fabric/
         env:
@@ -38,8 +38,8 @@ spec:
         - name: K8SCC_CFGFILE
           value: "/opt/k8scc/k8scc.yaml"
         volumeMounts:
-        - mountPath: /etc/hyperledger/fabric/
-          name: core
+        #- mountPath: /etc/hyperledger/fabric/
+        #  name: core
         - mountPath: /var/lib/k8scc/transfer/
           name: transfer-pv
         - mountPath: /var/hyperledger/production/
