@@ -10,7 +10,7 @@ jobs:
     - name: Build the Docker image
       run: docker build . --tag k8scc:latest
     - name: Setup kind
-      uses: engineerd/setup-kind@v0.4.0
+      uses: engineerd/setup-kind@v0.5.0
     - name: Show Clusterinfo
       run: |
         kubectl cluster-info
