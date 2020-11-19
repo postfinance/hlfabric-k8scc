@@ -157,7 +157,7 @@ chaincode:
   externalBuilders:
       - name: "k8scc"
         path: /opt/k8scc/
-        environmentWhitelist:
+        propagateEnvironment:
         - KUBERNETES_SERVICE_HOST
         - KUBERNETES_SERVICE_PORT
         - K8SCC_CFGFILE
