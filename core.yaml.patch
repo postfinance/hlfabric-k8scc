@@ -1,6 +1,6 @@
---- core.yaml.orig	2020-11-14 12:32:11.000000000 +0100
-+++ core.yaml.new	2020-11-14 12:42:35.000000000 +0100
-@@ -546,12 +546,13 @@
+--- core.yaml.orig	2020-12-11 14:57:56.386337469 -0800
++++ core.yaml.new	2020-12-11 15:16:32.071715590 -0800
+@@ -551,12 +551,13 @@
      # List of directories to treat as external builders and launchers for
      # chaincode. The external builder detection processing will iterate over the
      # builders in the order specified below.
@@ -11,12 +11,12 @@
 -        #      - ENVVAR_NAME_TO_PROPAGATE_FROM_PEER
 -        #      - GOPROXY
 +    externalBuilders:
-+        - name: "k8scc"
-+          path: /opt/k8scc/
-+          propagateEnvironment:
-+          - KUBERNETES_SERVICE_HOST
-+          - KUBERNETES_SERVICE_PORT
-+          - K8SCC_CFGFILE
++      - name: "k8scc"
++        path: /opt/k8scc/
++        propagateEnvironment:
++        - KUBERNETES_SERVICE_HOST
++        - KUBERNETES_SERVICE_PORT
++        - K8SCC_CFGFILE
  
      # The maximum duration to wait for the chaincode build and install process
      # to complete.
