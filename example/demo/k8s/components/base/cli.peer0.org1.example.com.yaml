@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: cli
-          image: hyperledger/fabric-tools:2.2.1
+          image: hyperledger/fabric-tools:2.3.0
           workingDir: /etc/hyperledger/fabric/
           tty: true
           stdin: true

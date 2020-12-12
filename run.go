@@ -19,7 +19,7 @@ import (
 )
 
 // Run implements the chaincode launcher on Kubernetes whose function is implemented after
-// https://github.com/hyperledger/fabric/blob/v2.2.1/integration/externalbuilders/golang/bin/run
+// https://github.com/hyperledger/fabric/blob/v2.3.0/integration/externalbuilders/golang/bin/run
 func Run(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: run")
 
@@ -116,7 +116,7 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	}
 
 	// Create weird cert files (used by node platform)
-	// https://github.com/hyperledger/fabric/blob/v2.2.1/core/container/dockercontroller/dockercontroller.go#L319
+	// https://github.com/hyperledger/fabric/blob/v2.3.0/core/container/dockercontroller/dockercontroller.go#L319
 	err = ioutil.WriteFile(clientCertPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientCert))), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "writing client cert file")
