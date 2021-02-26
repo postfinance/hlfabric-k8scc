@@ -8,7 +8,7 @@ RUN go env
 RUN go build -o /bin/externalcc .
 
 
-FROM hyperledger/fabric-peer:2.3.0
+FROM hyperledger/fabric-peer:2.2.1
 RUN apk --no-cache add patch
 
 # Install external cc

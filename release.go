@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,18 +23,11 @@ func Release(ctx context.Context, cfg Config) error {
 	outputDir := os.Args[2]
 
 	// Copy META-INF, if available
-	metaInf := filepath.Join(sourceDir, "META-INF")
+	metaInf := filepath.Join(sourceDir, "statedb")
 	if _, err := os.Stat(metaInf); !os.IsNotExist(err) {
-		entries, err := ioutil.ReadDir(metaInf)
+		err = cpy.Copy(metaInf, outputDir)
 		if err != nil {
-			return errors.Wrap(err, "accessing META-INF")
-		}
-
-		for _, entry := range entries {
-			err = cpy.Copy(entry.Name(), outputDir)
-			if err != nil {
-				return errors.Wrap(err, fmt.Sprintf("copy %q from META-INF to output dir", entry.Name()))
-			}
+			return errors.Wrap(err, "accessing statedb folder")
 		}
 	}
 

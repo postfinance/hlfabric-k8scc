@@ -43,13 +43,13 @@ func GetCCMountDir(ccType string) string {
 
 	switch ccType {
 	case pb.ChaincodeSpec_GOLANG.String():
-		// https://github.com/hyperledger/fabric/blob/v2.3.0/core/chaincode/platforms/golang/platform.go#L192
+		// https://github.com/hyperledger/fabric/blob/v2.2.1/core/chaincode/platforms/golang/platform.go#L192
 		return "/usr/local/bin"
 	case pb.ChaincodeSpec_JAVA.String():
-		// https://github.com/hyperledger/fabric/blob/v2.3.0/core/chaincode/platforms/java/platform.go#L125
+		// https://github.com/hyperledger/fabric/blob/v2.2.1/core/chaincode/platforms/java/platform.go#L125
 		return "/root/chaincode-java/chaincode"
 	case pb.ChaincodeSpec_NODE.String():
-		// https://github.com/hyperledger/fabric/blob/v2.3.0/core/chaincode/platforms/node/platform.go#L170
+		// https://github.com/hyperledger/fabric/blob/v2.2.1/core/chaincode/platforms/node/platform.go#L170
 		return "/usr/local/src"
 	default:
 		// Fall back to Go dir
