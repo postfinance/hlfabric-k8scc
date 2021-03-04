@@ -19,13 +19,15 @@ func Release(ctx context.Context, cfg Config) error {
 		return errors.New("release requires exactly two arguments")
 	}
 
+	// bld dir from external builder
 	sourceDir := os.Args[1]
 	outputDir := os.Args[2]
 
-	// Copy META-INF, if available
-	metaInf := filepath.Join(sourceDir, "statedb")
-	if _, err := os.Stat(metaInf); !os.IsNotExist(err) {
-		err = cpy.Copy(metaInf, outputDir)
+	// Copy statedb from bld dir, if available
+	statedbSrc := filepath.Join(sourceDir, "statedb")
+	statedbDest := filepath.Join(outputDir, "statedb");
+	if _, err := os.Stat(statedbSrc); !os.IsNotExist(err) {
+		err = cpy.Copy(statedbSrc, statedbDest)
 		if err != nil {
 			return errors.Wrap(err, "accessing statedb folder")
 		}
