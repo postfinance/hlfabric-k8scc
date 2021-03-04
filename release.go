@@ -25,7 +25,7 @@ func Release(ctx context.Context, cfg Config) error {
 
 	// Copy statedb from bld dir, if available
 	statedbSrc := filepath.Join(sourceDir, "statedb")
-	statedbDest := filepath.Join(outputDir, "statedb");
+	statedbDest := filepath.Join(outputDir, "statedb")
 	if _, err := os.Stat(statedbSrc); !os.IsNotExist(err) {
 		err = cpy.Copy(statedbSrc, statedbDest)
 		if err != nil {
