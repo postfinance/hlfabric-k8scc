@@ -43,6 +43,8 @@ jobs:
         kubectl get configmaps -o wide
         kubectl get pvc -o wide
       if: ${{ always() }}
-    - name: Describe Pods on failure
-      run: kubectl describe pods
+    - name: Describe Pods and Nodes on failure
+      run: |
+        kubectl describe pods
+        kubectl describe nodes
       if: ${{ failure() }}
