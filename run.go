@@ -315,7 +315,7 @@ func createChaincodePod(ctx context.Context,
 				},
 			},
 			EnableServiceLinks: BoolRef(false),
-			RestartPolicy:      apiv1.RestartPolicyAlways,
+			RestartPolicy:      apiv1.RestartPolicyNever,
 			Volumes: []apiv1.Volume{
 				{
 					Name: "transfer-pv",
