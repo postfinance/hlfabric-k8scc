@@ -331,7 +331,7 @@ func createChaincodePod(ctx context.Context,
 	
 	// delete pods in state "Completed", "Failed" or "Terminating"
 	existingCCPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, podname, metav1.GetOptions{})
-	if existingCCPod != nil && (existingCCPod.Status.Phase == apiv1.PodFailed || existingCCPod.Status.Phase == apiv1.PodSucceeded || existingCCPod.Status.ContainerStatuses[0].State.Terminated != nil) {
+	if existingCCPod != nil && (existingCCPod.Status.Phase == apiv1.PodFailed || existingCCPod.Status.Phase == apiv1.PodSucceeded || (len(existingCCPod.Status.ContainerStatuses) > 0 && existingCCPod.Status.ContainerStatuses[0].State.Terminated != nil)) {
 		err := clientset.CoreV1().Pods(cfg.Namespace).Delete(ctx, podname, metav1.DeleteOptions{})
 		if err != nil {
 			return nil, errors.Wrap(err, "deleting existing chaincode pod")
