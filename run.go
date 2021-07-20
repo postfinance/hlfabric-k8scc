@@ -177,13 +177,13 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	}
 
 	name := strings.ReplaceAll(parts[0], "_", "-")
+	// make chaincode name lower case
+	name = strings.ToLower(name)
+	
 	hash := parts[1]
 	if len(hash) < 8 {
 		return nil, errors.New("Hash of chaincode ID too short")
 	}
-
-	// set pod name to lower case
-	metadata.ShortName = strings.ToLower(fmt.Sprintf("%s-%s", name, hash[0:8]))
 
 	// Read BuildInformation
 	buildInfoFile := filepath.Join(outputDir, "k8scc_buildinfo.json")
