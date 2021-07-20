@@ -184,7 +184,9 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	if len(hash) < 8 {
 		return nil, errors.New("Hash of chaincode ID too short")
 	}
-
+	
+	metadata.ShortName = fmt.Sprintf("%s-%s", name, hash[0:8])
+	
 	// Read BuildInformation
 	buildInfoFile := filepath.Join(outputDir, "k8scc_buildinfo.json")
 	buildInfoData, err := ioutil.ReadFile(buildInfoFile)
