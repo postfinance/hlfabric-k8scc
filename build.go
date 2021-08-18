@@ -35,6 +35,7 @@ func Build(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, "getting metadata for chaincode")
 	}
+	metadata.Label = strings.ToLower(metadata.Label)
 
 	// Create transfer directory
 	copyOpts := cpy.Options{AddPermission: os.ModePerm}
@@ -143,9 +144,7 @@ func createBuilderPod(ctx context.Context,
 		return nil, fmt.Errorf("platform %q not supported by Hyperledger Fabric", metadata.Type)
 	}
 	
-	// make path lower case
-	lowerCasePath := strings.ToLower(metadata.Path)
-	buildOpts, err := plt.DockerBuildOptions(lowerCasePath)
+	buildOpts, err := plt.DockerBuildOptions(metadata.Path)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting build options for platform")
 	}
