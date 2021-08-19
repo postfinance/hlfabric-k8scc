@@ -144,7 +144,7 @@ func createBuilderPod(ctx context.Context,
 		return nil, fmt.Errorf("platform %q not supported by Hyperledger Fabric", metadata.Type)
 	}
 	
-	buildOpts, err := plt.DockerBuildOptions(metadata.Path)
+	buildOpts, err := plt.DockerBuildOptions(strings.ToLower(metadata.Path))
 	if err != nil {
 		return nil, errors.Wrap(err, "getting build options for platform")
 	}
