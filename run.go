@@ -186,7 +186,6 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	}
 	
 	metadata.ShortName = fmt.Sprintf("%s-%s", name, hash[0:8])
-	metadata.CCID = strings.ToLower(metadata.CCID)
 	
 	// Read BuildInformation
 	buildInfoFile := filepath.Join(outputDir, "k8scc_buildinfo.json")
