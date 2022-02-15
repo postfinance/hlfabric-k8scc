@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -45,7 +46,7 @@ func Build(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("creating directory %s on transfer volume", cfg.TransferVolume.Path))
 	}
-	defer os.RemoveAll(transferdir) // Cleanup transfer directory when this process ends
+	//defer os.RemoveAll(transferdir) // Cleanup transfer directory when this process ends
 
 	// Setup transfer
 	transferSrc := filepath.Join(transferdir, "src")
@@ -121,6 +122,11 @@ func Build(ctx context.Context, cfg Config) error {
 		return errors.Wrap(err, "changing permissions of BuildInformation")
 	}
 
+	err = os.RemoveAll(path.Join(cfg.TransferVolume.Path, prefix))
+	if err != nil {
+		return errors.Wrap(err, "error when deleteing ")
+	}
+
 	return nil
 }
 
@@ -143,7 +149,7 @@ func createBuilderPod(ctx context.Context,
 	if plt == nil {
 		return nil, fmt.Errorf("platform %q not supported by Hyperledger Fabric", metadata.Type)
 	}
-	
+
 	buildOpts, err := plt.DockerBuildOptions(metadata.Path)
 	if err != nil {
 		return nil, errors.Wrap(err, "getting build options for platform")
