@@ -124,7 +124,7 @@ func Build(ctx context.Context, cfg Config) error {
 
 	err = os.RemoveAll(path.Join(cfg.TransferVolume.Path, prefix))
 	if err != nil {
-		return errors.Wrap(err, "error when deleteing ")
+		fmt.Println(err.Error()) 
 	}
 
 	return nil
