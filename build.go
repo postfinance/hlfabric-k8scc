@@ -121,7 +121,7 @@ func Build(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, "changing permissions of BuildInformation")
 	}
-
+	err = os.RemoveAll(transferdir)
 	err = os.RemoveAll(path.Join(cfg.TransferVolume.Path, prefix))
 	if err != nil {
 		fmt.Println(err.Error()) 
