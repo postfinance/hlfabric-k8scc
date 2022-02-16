@@ -44,7 +44,6 @@ func Run(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("creating directory %s on transfer volume", cfg.TransferVolume.Path))
 	}
-	defer os.RemoveAll(transferdir)
 
 	// Setup transfer
 	transferOutput := filepath.Join(transferdir, "output")
@@ -89,6 +88,11 @@ func Run(ctx context.Context, cfg Config) error {
 		return fmt.Errorf("chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
 	}
 
+	err = os.RemoveAll(transferdir)
+	if err != nil {
+	   fmt.Println(err.Error())
+	   return errors.Wrap(err, "error when deleting transferdir")
+	}
 	return nil
 }
 
