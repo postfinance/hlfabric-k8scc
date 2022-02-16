@@ -89,10 +89,11 @@ func Run(ctx context.Context, cfg Config) error {
 	}
 
 	err = os.RemoveAll(transferdir)
-	if err != nil {
-	   fmt.Println(err.Error())
-	   return errors.Wrap(err, "error when deleting transferdir")
+	if err != nil {
+		fmt.Println(err.Error())
+		return errors.Wrap(err, "error when deleting transferdir")
 	}
+
 	return nil
 }
 
@@ -183,14 +184,14 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	name := strings.ReplaceAll(parts[0], "_", "-")
 	// make chaincode name lower case
 	name = strings.ToLower(name)
-	
+
 	hash := parts[1]
 	if len(hash) < 8 {
 		return nil, errors.New("Hash of chaincode ID too short")
 	}
-	
+
 	metadata.ShortName = fmt.Sprintf("%s-%s", name, hash[0:8])
-	
+
 	// Read BuildInformation
 	buildInfoFile := filepath.Join(outputDir, "k8scc_buildinfo.json")
 	buildInfoData, err := ioutil.ReadFile(buildInfoFile)
@@ -335,7 +336,7 @@ func createChaincodePod(ctx context.Context,
 			},
 		},
 	}
-	
+
 	// delete pods in state "Completed", "Failed" or "Terminating"
 	existingCCPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, podname, metav1.GetOptions{})
 	if existingCCPod != nil && (existingCCPod.Status.Phase == apiv1.PodFailed || existingCCPod.Status.Phase == apiv1.PodSucceeded || (len(existingCCPod.Status.ContainerStatuses) > 0 && existingCCPod.Status.ContainerStatuses[0].State.Terminated != nil)) {
