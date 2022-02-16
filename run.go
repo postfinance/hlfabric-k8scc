@@ -88,13 +88,16 @@ func Run(ctx context.Context, cfg Config) error {
 		return fmt.Errorf("chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
 	}
 
-	err = os.RemoveAll(transferdir)
-	if err != nil {
-		fmt.Println(err.Error())
-		return errors.Wrap(err, "error when deleting transferdir")
-	}
+	defer cleanupDir(transferdir)
 
 	return nil
+}
+
+func cleanupDir(directory string) {
+	err := os.RemoveAll(directory)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func createArtifacts(c *ChaincodeRunConfig, dir string) error {
