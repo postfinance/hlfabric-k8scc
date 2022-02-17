@@ -95,7 +95,7 @@ func Run(ctx context.Context, cfg Config) error {
 
 func cleanupDir(directory string) {
 // chmod parent directory for successful cleanup
-	err := os.Chmod(directory, os.ModePerm)
+	err := os.Chmod(directory, 0777)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
