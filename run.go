@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -94,14 +95,10 @@ func Run(ctx context.Context, cfg Config) error {
 }
 
 func cleanupDir(directory string) {
-// chmod parent directory for successful cleanup
-	err := os.Chmod(directory, 0777)
+	cmd := exec.Command("/bin/sh", "-c", "rm -rf /var/lib/k8scc/transfer/peer*")
+	err := cmd.Run()
 	if err != nil {
-		fmt.Println(err.Error())
-	}
-	err = os.RemoveAll(directory)
-	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 }
 
