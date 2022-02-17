@@ -99,7 +99,7 @@ func cleanupDir(directory string) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	err := os.RemoveAll(directory)
+	err = os.RemoveAll(directory)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
