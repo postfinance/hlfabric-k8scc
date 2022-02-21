@@ -50,14 +50,6 @@ func Run(ctx context.Context, cfg Config) error {
 		return errors.Wrap(err, "changing client tempdir permissions")
 	}
 	
-	defer func(path string) {
-		log.Println("Deleting tempDir")
-		err := os.RemoveAll(path)
-		if err != nil {
-			log.Println(err.Error() + "\n failed to delete tempDir")
-		}
-	}(transferdir)
-	
 	// Setup transfer
 	transferOutput := filepath.Join(transferdir, "output")
 	transferArtifacts := filepath.Join(transferdir, "artifacts")
@@ -90,6 +82,11 @@ func Run(ctx context.Context, cfg Config) error {
 		return errors.Wrap(err, "creating chaincode pod")
 	}
 	defer cleanupPodSilent(pod) // Cleanup pod on finish
+	
+	err = os.RemoveAll(transferdir)
+	if err != nil {
+		return errors.Wrap(err, "failed to delete tempDir")
+	}
 
 	// Watch chaincode Pod for completion or failure
 	podSucceeded, err := watchPodUntilCompletion(ctx, pod)
