@@ -45,6 +45,12 @@ func Run(ctx context.Context, cfg Config) error {
 		return errors.Wrap(err, fmt.Sprintf("creating directory %s on transfer volume", cfg.TransferVolume.Path))
 	}
 
+	err = os.Chmod(transferdir, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "changing client tempdir permissions")
+	}
+	defer os.RemoveAll(transferdir)
+	
 	// Setup transfer
 	transferOutput := filepath.Join(transferdir, "output")
 	transferArtifacts := filepath.Join(transferdir, "artifacts")
@@ -88,16 +94,7 @@ func Run(ctx context.Context, cfg Config) error {
 		return fmt.Errorf("chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
 	}
 
-	defer cleanupDir(transferdir)
-
 	return nil
-}
-
-func cleanupDir(directory string) {
-	err := os.RemoveAll(directory)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
 }
 
 func createArtifacts(c *ChaincodeRunConfig, dir string) error {
@@ -136,7 +133,7 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	}
 
 	// Change permissions
-	/* err = os.Chmod(clientCertFile, os.ModePerm)
+	err = os.Chmod(clientCertFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client cert pem file permissions")
 	}
@@ -160,7 +157,6 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	if err != nil {
 		return errors.Wrap(err, "changing peer cert file permissions")
 	}
- */
 	return nil
 }
 
