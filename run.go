@@ -94,7 +94,7 @@ func Run(ctx context.Context, cfg Config) error {
 }
 
 func cleanupDir(directory string) {
-	err = os.RemoveAll(directory)
+	err := os.RemoveAll(directory)
 	if err != nil {
 		fmt.Println(err.Error())
 		return errors.Wrap(err, "error when deleting ")
