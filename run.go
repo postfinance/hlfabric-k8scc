@@ -97,7 +97,6 @@ func cleanupDir(directory string) {
 	err := os.RemoveAll(directory)
 	if err != nil {
 		fmt.Println(err.Error())
-		return errors.Wrap(err, "error when deleting ")
 	}
 }
 
