@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -95,10 +94,10 @@ func Run(ctx context.Context, cfg Config) error {
 }
 
 func cleanupDir(directory string) {
-	cmd := exec.Command("/bin/sh", "-c", "rm -rf /var/lib/k8scc/transfer/peer*")
-	err := cmd.Run()
+  err = os.RemoveAll(directory)
 	if err != nil {
-		log.Println(err.Error())
+		fmt.Println(err.Error())
+		return errors.Wrap(err, "error when deleting ")
 	}
 }
 
@@ -138,7 +137,7 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	}
 
 	// Change permissions
-	err = os.Chmod(clientCertFile, os.ModePerm)
+	/* err = os.Chmod(clientCertFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client cert pem file permissions")
 	}
@@ -162,7 +161,7 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	if err != nil {
 		return errors.Wrap(err, "changing peer cert file permissions")
 	}
-
+ */
 	return nil
 }
 
