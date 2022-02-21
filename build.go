@@ -46,7 +46,7 @@ func Build(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("creating directory %s on transfer volume", cfg.TransferVolume.Path))
 	}
-	//defer os.RemoveAll(transferdir) // Cleanup transfer directory when this process ends
+	defer os.RemoveAll(transferdir) // Cleanup transfer directory when this process ends
 
 	// Setup transfer
 	transferSrc := filepath.Join(transferdir, "src")
@@ -120,11 +120,6 @@ func Build(ctx context.Context, cfg Config) error {
 	err = os.Chmod(buildInfoFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing permissions of BuildInformation")
-	}
-	err = os.RemoveAll(transferdir)
-	err = os.RemoveAll(path.Join(cfg.TransferVolume.Path, prefix))
-	if err != nil {
-		fmt.Println(err.Error()) 
 	}
 
 	return nil
