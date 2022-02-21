@@ -49,7 +49,14 @@ func Run(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, "changing client tempdir permissions")
 	}
-	defer os.RemoveAll(transferdir)
+	
+	defer func(path string) {
+		log.Println("Deleting tempDir")
+		err := os.RemoveAll(path)
+		if err != nil {
+			log.Println(err.Error() + "\n failed to delete tempDir")
+		}
+	}(transferdir)
 	
 	// Setup transfer
 	transferOutput := filepath.Join(transferdir, "output")
