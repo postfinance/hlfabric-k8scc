@@ -45,11 +45,6 @@ func Run(ctx context.Context, cfg Config) error {
 		return errors.Wrap(err, fmt.Sprintf("creating directory %s on transfer volume", cfg.TransferVolume.Path))
 	}
 
-	err = os.Chmod(transferdir, os.ModePerm)
-	if err != nil {
-		return errors.Wrap(err, "changing client tempdir permissions")
-	}
-	
 	// Setup transfer
 	transferOutput := filepath.Join(transferdir, "output")
 	transferArtifacts := filepath.Join(transferdir, "artifacts")
@@ -82,11 +77,6 @@ func Run(ctx context.Context, cfg Config) error {
 		return errors.Wrap(err, "creating chaincode pod")
 	}
 	defer cleanupPodSilent(pod) // Cleanup pod on finish
-	
-	err = os.RemoveAll(transferdir)
-	if err != nil {
-		return errors.Wrap(err, "failed to delete tempDir")
-	}
 
 	// Watch chaincode Pod for completion or failure
 	podSucceeded, err := watchPodUntilCompletion(ctx, pod)
@@ -96,6 +86,11 @@ func Run(ctx context.Context, cfg Config) error {
 
 	if !podSucceeded {
 		return fmt.Errorf("chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
+	}
+
+	err = os.RemoveAll(transferdir)
+	if err != nil {
+		log.Println(err.Error() + "\n error when deleting tempDir")
 	}
 
 	return nil
@@ -109,35 +104,35 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	peerCertFile := filepath.Join(dir, "root.crt")
 
 	// Create cert files
-	err := ioutil.WriteFile(clientCertFile, []byte(c.ClientCert), os.ModePerm)
+	err := ioutil.WriteFile(clientCertFile, []byte(c.ClientCert), 0700)
 	if err != nil {
 		return errors.Wrap(err, "writing client cert pem file")
 	}
 
-	err = ioutil.WriteFile(clientKeyFile, []byte(c.ClientKey), os.ModePerm)
+	err = ioutil.WriteFile(clientKeyFile, []byte(c.ClientKey), 0700)
 	if err != nil {
 		return errors.Wrap(err, "writing client key pem file")
 	}
 
-	err = ioutil.WriteFile(peerCertFile, []byte(c.RootCert), os.ModePerm)
+	err = ioutil.WriteFile(peerCertFile, []byte(c.RootCert), 0700)
 	if err != nil {
 		return errors.Wrap(err, "writing peer cert file")
 	}
 
 	// Create weird cert files (used by node platform)
 	// https://github.com/hyperledger/fabric/blob/v2.2.1/core/container/dockercontroller/dockercontroller.go#L319
-	err = ioutil.WriteFile(clientCertPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientCert))), os.ModePerm)
+	err = ioutil.WriteFile(clientCertPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientCert))), 0700)
 	if err != nil {
 		return errors.Wrap(err, "writing client cert file")
 	}
 
-	err = ioutil.WriteFile(clientKeyPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientKey))), os.ModePerm)
+	err = ioutil.WriteFile(clientKeyPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientKey))), 0700)
 	if err != nil {
 		return errors.Wrap(err, "writing client key file")
 	}
 
 	// Change permissions
-	err = os.Chmod(clientCertFile, os.ModePerm)
+	/*err = os.Chmod(clientCertFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client cert pem file permissions")
 	}
@@ -160,7 +155,8 @@ func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	err = os.Chmod(peerCertFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing peer cert file permissions")
-	}
+	}*/
+
 	return nil
 }
 
