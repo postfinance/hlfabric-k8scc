@@ -76,6 +76,12 @@ func Run(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, "creating chaincode pod")
 	}
+		
+	err = os.Remove(transferdir + "/output/chaincode")
+	if err != nil {
+		log.Println(err.Error())
+	}
+
 	defer cleanupPodSilent(pod) // Cleanup pod on finish
 	// Watch chaincode Pod for completion or failure
 	podSucceeded, err := watchPodUntilCompletion(ctx, pod)
