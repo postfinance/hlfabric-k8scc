@@ -1,5 +1,4 @@
 package main
-
 import (
 	"context"
 	"encoding/base64"
@@ -10,51 +9,54 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
 	cpy "github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
 // Run implements the chaincode launcher on Kubernetes whose function is implemented after
 // https://github.com/hyperledger/fabric/blob/v2.2.1/integration/externalbuilders/golang/bin/run
 func Run(ctx context.Context, cfg Config) error {
 	log.Println("Procedure: run")
-
 	if len(os.Args) != 3 {
 		return errors.New("run requires exactly two arguments")
 	}
-
 	outputDir := os.Args[1]
 	metadataDir := os.Args[2]
-
 	// Read run configuration
 	runConfig, err := getChaincodeRunConfig(metadataDir, outputDir)
 	if err != nil {
 		return errors.Wrap(err, "getting run config for chaincode")
 	}
-
 	// Create transfer dir
 	copyOpts := cpy.Options{AddPermission: os.ModePerm}
-
 	prefix, _ := os.Hostname()
 	transferdir, err := ioutil.TempDir(cfg.TransferVolume.Path, prefix)
 	if err != nil {
 		return errors.Wrap(err, fmt.Sprintf("creating directory %s on transfer volume", cfg.TransferVolume.Path))
 	}
+	err = os.Chmod(transferdir, os.ModePerm)
+	if err != nil {
+		return errors.Wrap(err, "changing client tempdir permissions")
+	}
+
+	defer func(path string) {
+		log.Println("Deleting tempDir")
+		err := os.RemoveAll(path)
+		if err != nil {
+			log.Println(err.Error() + "\n failed to delete tempDir")
+		}
+	}(transferdir)
 
 	// Setup transfer
 	transferOutput := filepath.Join(transferdir, "output")
 	transferArtifacts := filepath.Join(transferdir, "artifacts")
-
 	// Copy outputDir to transfer PV
 	err = cpy.Copy(outputDir, transferOutput, copyOpts)
 	if err != nil {
 		return errors.Wrap(err, "copy output dir to transfer dir")
 	}
-
 	// Create artifacts dir on transfer PV
 	err = os.Mkdir(transferArtifacts, os.ModePerm) // Apply full permissions, but this is before umask
 	if err != nil {
@@ -64,102 +66,79 @@ func Run(ctx context.Context, cfg Config) error {
 	if err != nil {
 		return errors.Wrap(err, "chmod on artifacts dir in the transfer dir")
 	}
-
 	// Create artifacts
 	err = createArtifacts(runConfig, transferArtifacts)
 	if err != nil {
 		return errors.Wrap(err, "creating artifacts")
 	}
-
 	// Create chaincode pod
 	pod, err := createChaincodePod(ctx, cfg, runConfig, filepath.Base(transferdir))
 	if err != nil {
 		return errors.Wrap(err, "creating chaincode pod")
 	}
 	defer cleanupPodSilent(pod) // Cleanup pod on finish
-
 	// Watch chaincode Pod for completion or failure
 	podSucceeded, err := watchPodUntilCompletion(ctx, pod)
 	if err != nil {
 		return errors.Wrap(err, "watching chaincode pod")
 	}
-
 	if !podSucceeded {
 		return fmt.Errorf("chaincode %s in Pod %s failed", runConfig.CCID, pod.Name)
 	}
-
-	err = os.RemoveAll(transferdir)
-	if err != nil {
-		log.Println(err.Error() + "\n error when deleting tempDir")
-	}
-
 	return nil
 }
-
 func createArtifacts(c *ChaincodeRunConfig, dir string) error {
 	clientCertPath := filepath.Join(dir, "client.crt")
 	clientKeyPath := filepath.Join(dir, "client.key")
 	clientCertFile := filepath.Join(dir, "client_pem.crt")
 	clientKeyFile := filepath.Join(dir, "client_pem.key")
 	peerCertFile := filepath.Join(dir, "root.crt")
-
 	// Create cert files
-	err := ioutil.WriteFile(clientCertFile, []byte(c.ClientCert), 0700)
+	err := ioutil.WriteFile(clientCertFile, []byte(c.ClientCert), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "writing client cert pem file")
 	}
-
-	err = ioutil.WriteFile(clientKeyFile, []byte(c.ClientKey), 0700)
+	err = ioutil.WriteFile(clientKeyFile, []byte(c.ClientKey), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "writing client key pem file")
 	}
-
-	err = ioutil.WriteFile(peerCertFile, []byte(c.RootCert), 0700)
+	err = ioutil.WriteFile(peerCertFile, []byte(c.RootCert), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "writing peer cert file")
 	}
-
 	// Create weird cert files (used by node platform)
 	// https://github.com/hyperledger/fabric/blob/v2.2.1/core/container/dockercontroller/dockercontroller.go#L319
-	err = ioutil.WriteFile(clientCertPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientCert))), 0700)
+	err = ioutil.WriteFile(clientCertPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientCert))), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "writing client cert file")
 	}
-
-	err = ioutil.WriteFile(clientKeyPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientKey))), 0700)
+	err = ioutil.WriteFile(clientKeyPath, []byte(base64.StdEncoding.EncodeToString([]byte(c.ClientKey))), os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "writing client key file")
 	}
-
 	// Change permissions
-	/*err = os.Chmod(clientCertFile, os.ModePerm)
+	err = os.Chmod(clientCertFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client cert pem file permissions")
 	}
-
 	err = os.Chmod(clientKeyFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client key pem file permissions")
 	}
-
 	err = os.Chmod(clientCertPath, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client key file permissions")
 	}
-
 	err = os.Chmod(clientKeyPath, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing client key file permissions")
 	}
-
 	err = os.Chmod(peerCertFile, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err, "changing peer cert file permissions")
-	}*/
-
+	}
 	return nil
 }
-
 func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunConfig, error) {
 	// Read chaincode.json
 	metadataFile := filepath.Join(metadataDir, "chaincode.json")
@@ -167,53 +146,42 @@ func getChaincodeRunConfig(metadataDir string, outputDir string) (*ChaincodeRunC
 	if err != nil {
 		return nil, errors.Wrap(err, "Reading chaincode.json")
 	}
-
 	metadata := ChaincodeRunConfig{}
 	err = json.Unmarshal(metadataData, &metadata)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unmarshaling chaincode.json")
 	}
-
 	// Create shortname
 	parts := strings.SplitN(metadata.CCID, ":", 2)
 	if len(parts) != 2 {
 		return nil, errors.New("Cannot parse chaincode name")
 	}
-
 	name := strings.ReplaceAll(parts[0], "_", "-")
 	// make chaincode name lower case
 	name = strings.ToLower(name)
-
 	hash := parts[1]
 	if len(hash) < 8 {
 		return nil, errors.New("Hash of chaincode ID too short")
 	}
-
 	metadata.ShortName = fmt.Sprintf("%s-%s", name, hash[0:8])
-
 	// Read BuildInformation
 	buildInfoFile := filepath.Join(outputDir, "k8scc_buildinfo.json")
 	buildInfoData, err := ioutil.ReadFile(buildInfoFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "Reading k8scc_buildinfo.json")
 	}
-
 	buildInformation := BuildInformation{}
 	err = json.Unmarshal(buildInfoData, &buildInformation)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unmarshaling k8scc_buildinfo.json")
 	}
-
 	if buildInformation.Image == "" {
 		return nil, errors.New("No image found in buildinfo")
 	}
-
 	metadata.Image = buildInformation.Image
 	metadata.Platform = buildInformation.Platform
-
 	return &metadata, nil
 }
-
 func createChaincodePod(ctx context.Context,
 	cfg Config, runConfig *ChaincodeRunConfig, transferPVPrefix string) (*apiv1.Pod, error) {
 	// Setup kubernetes client
@@ -221,14 +189,12 @@ func createChaincodePod(ctx context.Context,
 	if err != nil {
 		return nil, errors.Wrap(err, "getting kubernetes clientset")
 	}
-
 	// Get peer Pod
 	myself, _ := os.Hostname()
 	myselfPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, myself, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "getting myself Pod")
 	}
-
 	// Set resources
 	limits := apiv1.ResourceList{}
 	if limit := cfg.Launcher.Resources.LimitMemory; limit != "" {
@@ -237,13 +203,11 @@ func createChaincodePod(ctx context.Context,
 	if limit := cfg.Launcher.Resources.LimitCPU; limit != "" {
 		limits["cpu"] = resource.MustParse(limit)
 	}
-
 	// Configuration
 	hasTLS := "true"
 	if runConfig.ClientCert == "" {
 		hasTLS = "false"
 	}
-
 	// Pod
 	podname := fmt.Sprintf("%s-cc-%s", myself, runConfig.ShortName)
 	pod := &apiv1.Pod{
@@ -335,7 +299,6 @@ func createChaincodePod(ctx context.Context,
 			},
 		},
 	}
-
 	// delete pods in state "Completed", "Failed" or "Terminating"
 	existingCCPod, err := clientset.CoreV1().Pods(cfg.Namespace).Get(ctx, podname, metav1.GetOptions{})
 	if existingCCPod != nil && (existingCCPod.Status.Phase == apiv1.PodFailed || existingCCPod.Status.Phase == apiv1.PodSucceeded || (len(existingCCPod.Status.ContainerStatuses) > 0 && existingCCPod.Status.ContainerStatuses[0].State.Terminated != nil)) {
@@ -344,6 +307,5 @@ func createChaincodePod(ctx context.Context,
 			return nil, errors.Wrap(err, "deleting existing chaincode pod")
 		}
 	}
-
 	return clientset.CoreV1().Pods(cfg.Namespace).Create(ctx, pod, metav1.CreateOptions{})
 }
