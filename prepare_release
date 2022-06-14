@@ -15,9 +15,8 @@ read K8SCC_VERSION
 
 K8SCC_VERSION_SHORT=$(echo $K8SCC_VERSION | sed 's/v//g')
 
-# Update dependencies (2.2.1) (commit hash as a version is just a hack because there is a problem with the new go.mod of fabric)
-go get -u github.com/hyperledger/fabric@ec81f3e74fa127fc504b1c2249b19ec421ea2a1d
-
+# Update dependencies (2.2.5) (commit hash as a version is just a hack because there is a problem with the new go.mod of fabric)
+go get -u github.com/hyperledger/fabric@f7318ffd40215798f90e3944da74c706b717c746
 
 # Check diff of core.yaml
 wget -q -O core.yaml.orig https://raw.githubusercontent.com/hyperledger/fabric/v${PEER_VERSION}/sampleconfig/core.yaml
