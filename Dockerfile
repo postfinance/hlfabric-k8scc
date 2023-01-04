@@ -28,5 +28,7 @@ COPY core.yaml.md5sum /opt/k8scc/core.yaml.md5sum
 COPY entrypoint.sh /opt/k8scc/entrypoint.sh
 
 # Define entrypoint and CMD as JSON array, it's required to correcty pass arguments
-ENTRYPOINT ["/opt/k8scc/entrypoint.sh"]
+
+# Since we're using a custom core.yaml, we don't need to patch the default one
+# ENTRYPOINT ["/opt/k8scc/entrypoint.sh"]
 CMD ["peer","node","start"]
