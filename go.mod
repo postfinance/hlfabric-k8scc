@@ -16,7 +16,7 @@ require (
 	github.com/spf13/afero v1.3.1 // indirect
 	github.com/spf13/viper v1.6.2 // indirect
 	github.com/sykesm/zap-logfmt v0.0.3 // indirect
-	golang.org/x/sys v0.0.0-20200819091447-39769834ee22 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	google.golang.org/grpc v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.18.1
