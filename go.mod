@@ -13,10 +13,9 @@ require (
 	github.com/otiai10/copy v1.1.2-0.20200311132357-7ca34007d073
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/spf13/afero v1.3.1 // indirect
 	github.com/spf13/viper v1.6.2 // indirect
 	github.com/sykesm/zap-logfmt v0.0.3 // indirect
-	google.golang.org/grpc v1.31.0 // indirect
+	google.golang.org/grpc v1.53.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.20.0
 	k8s.io/apimachinery v0.20.0
